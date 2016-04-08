@@ -1,24 +1,13 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
+
+#include "utils.h"
 
 #define MAX_ITERS 10000
 #define TEST_CASE 1
 
 typedef double data_t;
-
-const char* getfield(char* line, int num)
-{
-    const char* tok;
-    for (tok = strtok(line, ",");
-            tok && *tok;
-            tok = strtok(NULL, ",\n"))
-    {
-        if (!--num)
-            return tok;
-    }
-    return NULL;
-}
 
 void assign_labels(data_t* X, int X_length, int X_dim, int test_case, char* y) {
     int i, j;
