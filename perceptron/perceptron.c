@@ -9,18 +9,21 @@
 
 typedef double data_t;
 
-void assign_labels(data_t* X, int X_length, int X_dim, int test_case, char* y) {
+void assign_labels(data_t* x, int x_length, int x_dim, int test_case, char* y) {
     int i, j;
-    for(i=0; i<X_length; ++i){ 
-        switch(test_case){
+    for(i=0; i < x_length; ++i){ 
+        switch(test_case) {
             case 1:
-                y[i] = (0.2*(X[i*X_dim + 0] - 0.5)) + (.6-X[i*X_dim + 1]) > 0 ? 1 : -1;
+                y[i] = (0.2*(x[i*x_dim + 0] - 0.5)) +
+                    (.6-x[i*x_dim + 1]) > 0 ? 1 : -1;
                 break;
             case 2:
-                y[i] = (X[i*X_dim + 0]-.5)*(X[i*X_dim + 0]-.5) + (X[i*X_dim + 1]-.5)*(X[i*X_dim + 1]-.5) > 0.09 ? 1 : -1;
+                y[i] = (x[i*x_dim + 0]-.5)*(x[i*x_dim + 0]-.5) +
+                    (x[i*x_dim + 1]-.5)*(x[i*x_dim + 1]-.5) > 0.09 ? 1 : -1;
                 break;
             case 3:
-                y[i] = 4*(X[i*X_dim + 0]-.5)*4*(X[i*X_dim + 0]-.5) + (.2-X[i*X_dim + 1]) > 0 ? 1 : -1;
+                y[i] = 4*(x[i*x_dim + 0]-.5)*4*(x[i*x_dim + 0]-.5) +
+                    (.2-x[i*x_dim + 1]) > 0 ? 1 : -1;
                 break;
             default:
                 y[i] = 0;
@@ -28,33 +31,33 @@ void assign_labels(data_t* X, int X_length, int X_dim, int test_case, char* y) {
     }
 }
 
-void train_perceptron(data_t* X, char* y, double eta, int X_length, int X_dim){
-    double w[X_dim];
-    double score[X_length];
-    char misclassified[X_length];
+void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
+    double w[x_dim];
+    double score[x_length];
+    char misclassified[x_length];
     char not_classified = 1;
     int i, j, sum_missed, iters = 0;
 
     //set w to 0's, misclassified to 1's
-    memset(w, 0, X_dim*sizeof(double));
-    memset(misclassified, 1, X_length*sizeof(char));
+    memset(w, 0, x_dim*sizeof(double));
+    memset(misclassified, 1, x_length*sizeof(char));
 
 
     while(not_classified && iters <= MAX_ITERS){
         iters++;
         not_classified = 0;
-        for(i=0; i<X_length; ++i){
+        for(i=0; i < x_length; ++i){
             if(misclassified[i] == 1){
-                for(j=0; j<X_dim; ++j){
-                    w[j] = w[j] + eta*X[i*X_dim + j]*y[i];
+                for(j=0; j< x_dim; ++j){
+                    w[j] = w[j] + eta*x[i*x_dim + j]*y[i];
                 }
             }
         }
         sum_missed = 0;
-        for (i=0; i<X_length; ++i) {
+        for (i=0; i<x_length; ++i) {
             score[i] = 0;
-            for (j = 0; j < X_dim; j++) {
-                score[i] += X[i*X_dim + j]*w[j];
+            for (j = 0; j < x_dim; j++) {
+                score[i] += x[i*x_dim + j]*w[j];
             }
             misclassified[i] = score[i]*y[i] <= 0.0 ? 1 : 0;
             // Set not_classified to 1 if any data point is misclassfied
