@@ -16,12 +16,14 @@ typedef float data_t;
 using namespace std;
 
 // Perform K nearest neighbor classification.
-void knn(const data_t* x,
+void knn(const int k,
+         const data_t* x,
          const data_t* labeled,
-         const int labels,
-         const int x_dim,
+         const int* labels,
+         const int dim,
          const int x_length,
-         int* x_labels);
+         const int labeled_length,
+         int* x_pred);
 
 // Compute the euclidean distance between two multi-dimensional vectors.
 // Note: x and y must be the same length.
@@ -51,6 +53,7 @@ int main() {
     data_t x[x_length*x_dim];
     data_t labeled[labeled_length*x_dim];
     int x_labels[x_length];
+    int x_pred[x_length];
     int labels[labeled_length];
 
     int line_counter = 0;
@@ -84,7 +87,7 @@ int main() {
         free(tmp);
         line_counter++;
     }
-
+/*
     for (i = 0; i < x_length; i++) {
         for (j = 0; j < x_dim; j++) {
             printf("%f,", x[i*x_dim+j]);
@@ -92,7 +95,16 @@ int main() {
         printf("%d",x_labels[i]);
         printf("\n");
     }
-
+*/
+    knn(5, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
+    int count_right = 0;    
+    for (i = 0; i < x_length; i++) {
+        if (x_pred[i] == x_labels[i]) {
+            count_right++;
+        }
+    } 
+    cout << "Percentage correctly classified: " <<
+        count_right / (float) x_length << endl;
     return 0;
 }
 
