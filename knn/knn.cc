@@ -9,9 +9,19 @@
 #include <functional>
 #include <numeric>
 
+#include "utils.h"
+
 typedef float data_t;
 
 using namespace std;
+
+// Perform K nearest neighbor classification.
+void knn(const data_t* x,
+         const data_t* labeled,
+         const int labels,
+         const int x_dim,
+         const int x_length,
+         int* x_labels);
 
 // Compute the euclidean distance between two multi-dimensional vectors.
 // Note: x and y must be the same length.
@@ -32,9 +42,83 @@ int mode_labels(const vector< pair<int, float> >& labels);
 bool compare_labels(const pair<int, float>&i, const pair<int, float>&j);
 
 int main() {
-    float distances[] = {0.4, 0.2, 0.1, 0.1, 0.05};
-    int labels[] = {1, 2, 3, 1, 3};
-    cout << predict_class(distances, labels, 5, 4) << endl;
+    const int x_length = 500;
+    const int x_dim = 2;
+    int i, j;
+
+    const int labeled_length = 200;
+
+    data_t x[x_length*x_dim];
+    data_t labeled[labeled_length*x_dim];
+    int x_labels[x_length];
+    int labels[labeled_length];
+
+    int line_counter = 0;
+
+    FILE* stream = fopen("train2d.csv", "r");
+    char line[1024];
+    while (fgets(line, 1024, stream))
+    {
+        char* tmp = strdup(line);
+        int idx = line_counter*x_dim;
+        labeled[idx] = strtod(getfield(tmp, 1), NULL);
+        tmp = strdup(line);
+        labeled[idx + 1] = strtod(getfield(tmp, 2), NULL);
+        tmp = strdup(line);
+        labels[line_counter] = strtod(getfield(tmp, 3), NULL);
+        free(tmp);
+        line_counter++;
+    }
+
+    stream = fopen("test2d.csv", "r");
+    line_counter = 0;
+    while (fgets(line, 1024, stream))
+    {
+        char* tmp = strdup(line);
+        int idx = line_counter*x_dim;
+        x[idx] = strtod(getfield(tmp, 1), NULL);
+        tmp = strdup(line);
+        x[idx + 1] = strtod(getfield(tmp, 2), NULL);
+        tmp = strdup(line);
+        x_labels[line_counter] = strtod(getfield(tmp, 3), NULL);
+        free(tmp);
+        line_counter++;
+    }
+
+    for (i = 0; i < x_length; i++) {
+        for (j = 0; j < x_dim; j++) {
+            printf("%f,", x[i*x_dim+j]);
+        }
+        printf("%d",x_labels[i]);
+        printf("\n");
+    }
+
+    return 0;
+}
+
+void knn(const int k,
+         const data_t* x,
+         const data_t* labeled,
+         const int* labels,
+         const int dim,
+         const int x_length,
+         const int labeled_length,
+         int* x_pred) {
+    // Loop through data points and classify each based on nearest labeled
+    // neighbors.
+    float distances[labeled_length];
+    for (int i = 0; i < x_length; i++) {
+        // Compute the euclidean distances between x and the labeled data.
+        for (int j = 0; j < labeled_length; j++) {
+            distances[j] = euclid_distance(x + i*dim, labeled + j*dim, dim);
+        }
+        // Predict the class for this data point.
+        x_pred[i] = predict_class(
+                distances,
+                labels,
+                labeled_length,
+                k);
+    }
 }
 
 float euclid_distance(const data_t* x, const data_t* y, const int length) {
