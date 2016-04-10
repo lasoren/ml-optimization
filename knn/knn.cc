@@ -96,7 +96,7 @@ int main() {
         printf("\n");
     }
 */
-    knn(5, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
+    knn(6, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
     int count_right = 0;    
     for (i = 0; i < x_length; i++) {
         if (x_pred[i] == x_labels[i]) {
@@ -104,7 +104,7 @@ int main() {
         }
     } 
     cout << "Percentage correctly classified: " <<
-        count_right / (float) x_length << endl;
+        100*count_right / (float) x_length << endl;
     return 0;
 }
 
