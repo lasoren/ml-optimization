@@ -15,13 +15,23 @@ typedef float data_t;
 
 using namespace std;
 
-// Perform K nearest neighbor classification.
-void knn(const int k,
+// Perform K nearest neighbor classification on all x data points.
+void perform_knn(const int k,
          const data_t* x,
          const data_t* labeled,
          const int* labels,
          const int dim,
          const int x_length,
+         const int labeled_length,
+         int* x_pred);
+
+// Perform K nearest neighbor classification on all one data point at index i.
+void knn(const int k,
+         const data_t* x,
+         const int i,
+         const data_t* labeled,
+         const int* labels,
+         const int dim,
          const int labeled_length,
          int* x_pred);
 
@@ -96,7 +106,7 @@ int main() {
         printf("\n");
     }
 */
-    knn(6, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
+    perform_knn(6, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
     int count_right = 0;    
     for (i = 0; i < x_length; i++) {
         if (x_pred[i] == x_labels[i]) {
@@ -108,7 +118,7 @@ int main() {
     return 0;
 }
 
-void knn(const int k,
+void perform_knn(const int k,
          const data_t* x,
          const data_t* labeled,
          const int* labels,
@@ -120,17 +130,28 @@ void knn(const int k,
     // neighbors.
     float distances[labeled_length];
     for (int i = 0; i < x_length; i++) {
-        // Compute the euclidean distances between x and the labeled data.
-        for (int j = 0; j < labeled_length; j++) {
-            distances[j] = euclid_distance(x + i*dim, labeled + j*dim, dim);
-        }
-        // Predict the class for this data point.
-        x_pred[i] = predict_class(
-                distances,
-                labels,
-                labeled_length,
-                k);
+        knn(k, x, i, labeled, labels, dim, labeled_length, x_pred);
     }
+}
+
+void knn(const int k,
+         const data_t* x,
+         const int i,
+         const data_t* labeled,
+         const int* labels,
+         const int dim,
+         const int labeled_length,
+         int* x_pred) {
+    // Compute the euclidean distances between x and the labeled data.
+    for (int j = 0; j < labeled_length; j++) {
+        distances[j] = euclid_distance(x + i*dim, labeled + j*dim, dim);
+    }
+    // Predict the class for this data point.
+    x_pred[i] = predict_class(
+            distances,
+            labels,
+            labeled_length,
+            k);
 }
 
 float euclid_distance(const data_t* x, const data_t* y, const int length) {
