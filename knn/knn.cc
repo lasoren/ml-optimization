@@ -39,6 +39,10 @@ void knn(const int k,
 // Note: x and y must be the same length.
 float euclid_distance(const data_t* x, const data_t* y, const int length);
 
+// Computes the hamming distance between any multi-dimensional vectors where
+// where the difference between each dimension determines the hamming distance.
+data_t hamming_distance(const data_t* x, const data_t* y, const int length);
+
 // Given the distances from this test point to all of the labeled points
 // and the number of nearest neighbors to consider, predict this point's
 // label.
@@ -160,6 +164,14 @@ float euclid_distance(const data_t* x, const data_t* y, const int length) {
         dist += pow(fabs(x[i] - y[i]), 2);
     } 
     return sqrt(dist);
+}
+
+data_t hamming_distance(const data_t* x, const data_t* y, const int length) {
+    data_t dist = 0;
+    for (int i = 0; i < length; i++) {
+        dist += (data_t) fabs(x[i] - y[i]);
+    }
+    return dist;
 }
 
 int predict_class(const float* distances,
