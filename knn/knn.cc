@@ -1,5 +1,7 @@
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
@@ -56,6 +58,9 @@ int mode_labels(const vector< pair<int, float> >& labels);
 
 // Used for sorting pairs of integer and float values.
 bool compare_labels(const pair<int, float>&i, const pair<int, float>&j);
+
+// Get fields from a line and fill an array with the values.
+const char* getfields(char* line, int num);
 
 int main() {
     const int x_length = 500;
@@ -222,4 +227,16 @@ int mode_labels(const vector< pair<int, float> >& labels) {
 
 bool compare_labels(const pair<int, float>&i, const pair<int, float>&j) {
     return i.second < j.second;
+}
+
+const char* getfield(char* line, int num) {
+    const char* tok;
+    for (tok = strtok(line, ",");
+            tok && *tok;
+            tok = strtok(NULL, ",\n"))
+    {
+        if (!--num)
+            return tok;
+    }
+    return NULL;
 }
