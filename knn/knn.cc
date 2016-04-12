@@ -10,11 +10,11 @@
 void perform_knn(const int k,
          const data_t* x,
          const data_t* labeled,
-         const int* labels,
+         const data_t* labels,
          const int dim,
          const int x_length,
          const int labeled_length,
-         int* x_pred) {
+         data_t* x_pred) {
     // Loop through data points and classify each based on nearest labeled
     // neighbors.
     for (int i = 0; i < x_length; i++) {
@@ -26,10 +26,10 @@ void knn(const int k,
          const data_t* x,
          const int i,
          const data_t* labeled,
-         const int* labels,
+         const data_t* labels,
          const int dim,
          const int labeled_length,
-         int* x_pred) {
+         data_t* x_pred) {
     float distances[labeled_length];
     // Compute the euclidean distances between x and the labeled data.
     for (int j = 0; j < labeled_length; j++) {
@@ -60,7 +60,7 @@ data_t hamming_distance(const data_t* x, const data_t* y, const int length) {
 }
 
 int predict_class(const float* distances,
-                  const int* labels,
+                  const data_t* labels,
                   const int length,
                   const int k) {
     vector< pair<int, float> > min_dist_labels;

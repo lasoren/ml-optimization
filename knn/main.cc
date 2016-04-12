@@ -7,7 +7,6 @@
 
 using namespace std;
 
-// Get fields from a line and fill an array with the values.
 const char* getfield(char* line, int num);
 
 int main() {
@@ -86,3 +85,4 @@ const char* getfield(char* line, int num) {
     }
     return NULL;
 }
+

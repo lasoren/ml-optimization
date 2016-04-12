@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-typedef float data_t;
+typedef char data_t;
 
 using namespace std;
 
@@ -10,21 +10,21 @@ using namespace std;
 void perform_knn(const int k,
          const data_t* x,
          const data_t* labeled,
-         const int* labels,
+         const data_t* labels,
          const int dim,
          const int x_length,
          const int labeled_length,
-         int* x_pred);
+         data_t* x_pred);
 
 // Perform K nearest neighbor classification on all one data point at index i.
 void knn(const int k,
          const data_t* x,
          const int i,
          const data_t* labeled,
-         const int* labels,
+         const data_t* labels,
          const int dim,
          const int labeled_length,
-         int* x_pred);
+         data_t* x_pred);
 
 // Compute the euclidean distance between two multi-dimensional vectors.
 // Note: x and y must be the same length.
@@ -38,7 +38,7 @@ data_t hamming_distance(const data_t* x, const data_t* y, const int length);
 // and the number of nearest neighbors to consider, predict this point's
 // label.
 int predict_class(const float* distances,
-                  const int* labels,
+                  const data_t* labels,
                   const int length,
                   const int k);
 
