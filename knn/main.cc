@@ -18,9 +18,9 @@ int main() {
 
     data_t x[x_length*x_dim];
     data_t labeled[labeled_length*x_dim];
-    int x_labels[x_length];
-    int x_pred[x_length];
-    int labels[labeled_length];
+    data_t x_labels[x_length];
+    data_t x_pred[x_length];
+    data_t labels[labeled_length];
 
     int line_counter = 0;
 

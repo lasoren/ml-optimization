@@ -6,6 +6,9 @@
 #include <utility>
 #include <functional>
 #include <numeric>
+#include <iostream>
+
+using namespace std;
 
 void perform_knn(const int k,
          const data_t* x,
@@ -18,6 +21,9 @@ void perform_knn(const int k,
     // Loop through data points and classify each based on nearest labeled
     // neighbors.
     for (int i = 0; i < x_length; i++) {
+        if (i%100 == 0) {
+            cout << "Done classifying: " << i << endl;
+        }
         knn(k, x, i, labeled, labels, dim, labeled_length, x_pred);
     }
 }
@@ -33,7 +39,7 @@ void knn(const int k,
     float distances[labeled_length];
     // Compute the euclidean distances between x and the labeled data.
     for (int j = 0; j < labeled_length; j++) {
-        distances[j] = euclid_distance(x + i*dim, labeled + j*dim, dim);
+        distances[j] = hamming_distance(x + i*dim, labeled + j*dim, dim);
     }
     // Predict the class for this data point.
     x_pred[i] = predict_class(

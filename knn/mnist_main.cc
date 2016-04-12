@@ -7,10 +7,8 @@
 
 using namespace std;
 
-typedef char data_t;
-
 // Get fields from a line and fill an array with the values.
-void get_fields(char* line, data_t* data);
+void get_fields(char* line, data_t* data, int max_width);
 
 int main() {
     const int x_length = 2163;
@@ -31,10 +29,12 @@ int main() {
     {
         char* tmp = strdup(line);
         int idx = line_counter*x_dim;
-        get_fields(tmp, labeled+idx);
+        get_fields(tmp, labeled+idx, x_dim);
         free(tmp);
-        cout << line_counter << ",";
         line_counter++;
+        if (line_counter == labeled_length) {
+            break;
+        }
     }
 
     stream = fopen("ytrain.csv", "r");
@@ -42,10 +42,12 @@ int main() {
     while (fgets(line, 1024, stream))
     {
         char* tmp = strdup(line);
-        get_fields(tmp, labels+line_counter);
+        get_fields(tmp, labels+line_counter, 1);
         free(tmp);
-        cout << line_counter << ",";
         line_counter++;
+        if (line_counter == labeled_length) {
+            break;
+        }
     }
     
     stream = fopen("Xtest.csv", "r");
@@ -54,10 +56,12 @@ int main() {
     {
         char* tmp = strdup(line);
         int idx = line_counter*x_dim;
-        get_fields(tmp, x+idx);
+        get_fields(tmp, x+idx, x_dim);
         free(tmp);
-        cout << line_counter << ",";
         line_counter++;
+        if (line_counter == x_length) {
+            break;
+        }
     }
 
     stream = fopen("ytest.csv", "r");
@@ -66,10 +70,12 @@ int main() {
     {
         char* tmp = strdup(line);
         int idx = line_counter*x_dim;
-        get_fields(tmp, x_pred+idx);
+        get_fields(tmp, x_pred+idx, 1);
         free(tmp);
-        cout << line_counter << ",";
         line_counter++;
+        if (line_counter == x_length) {
+            break;
+        }
     }
 
     perform_knn(6, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
@@ -85,7 +91,7 @@ int main() {
     return 0;
 }
 
-void get_fields(char* line, data_t* data) {
+void get_fields(char* line, data_t* data, int max_width) {
     int count = 0; 
     const char* tok;
     for (tok = strtok(line, ",");
@@ -94,6 +100,9 @@ void get_fields(char* line, data_t* data) {
     {
         data[count] = (data_t) strtod(tok, NULL);
         count++;
+        if (count == max_width) {
+            break;
+        }
     }
 }
 
