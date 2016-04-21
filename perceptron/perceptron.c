@@ -2,12 +2,22 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "utils.h"
-
 #define MAX_ITERS 10000
 #define TEST_CASE 1
 
 typedef double data_t;
+
+const char* getfield(char* line, int num) {
+    const char* tok;
+    for (tok = strtok(line, ",");
+            tok && *tok;
+            tok = strtok(NULL, ",\n"))
+    {
+        if (!--num)
+            return tok;
+    }
+    return NULL;
+}
 
 void assign_labels(data_t* x, int x_length, int x_dim, int test_case, char* y) {
     int i, j;
@@ -53,6 +63,10 @@ void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
                 }
             }
         }
+
+        for(j=0;j<x_dim;++j){
+            printf("%f \n", w[j]);
+        }
         sum_missed = 0;
         for (i=0; i<x_length; ++i) {
             score[i] = 0;
@@ -62,12 +76,14 @@ void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
             misclassified[i] = score[i]*y[i] <= 0.0 ? 1 : 0;
             // Set not_classified to 1 if any data point is misclassfied
             // and count number of missed.
+            printf("%d ", misclassified[i]);
+
             if (misclassified[i] == 1) {
                 sum_missed++;
                 not_classified = 1;
             }
         }
-        printf("Iteration: %d with %d misclassified\n", iters, sum_missed);
+        printf("\nIteration: %d with %d misclassified\n", iters, sum_missed);
     }
 
     if (sum_missed == 0) {
