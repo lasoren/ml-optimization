@@ -92,6 +92,7 @@ int predict_class(const float* distances,
 
 int mode_labels(const vector< pair<int, float> >& labels) {
     vector<int> counts;
+    vector<int> ties;
     for (int i = 0; i < labels.size(); i++) {
         counts.push_back(labels[i].first);
     }
@@ -102,6 +103,7 @@ int mode_labels(const vector< pair<int, float> >& labels) {
     int mode = number;
     int count = 1;
     int countMode = 1;
+    ties.push_back(number);
 
     for (int i=1; i< counts.size(); i++)
     {
@@ -115,9 +117,23 @@ int mode_labels(const vector< pair<int, float> >& labels) {
             {
                 countMode = count; // mode is the biggest ocurrences
                 mode = number;
+                ties.clear();
+                ties.push_back(mode);
+            } else if (count == countMode) {
+                ties.push_back(number);
             }
             count = 1; // reset count for the new number
             number = counts[i];
+        }
+    } 
+    if (count == countMode) {
+        ties.push_back(number);
+    }
+
+
+    for (int i = 0; i < labels.size(); i++) {
+        if (std::find(ties.begin(), ties.end(), labels[i].first) != ties.end()) {
+            return labels[i].first;
         }
     }
 
