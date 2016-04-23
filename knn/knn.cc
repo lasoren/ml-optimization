@@ -39,7 +39,7 @@ void knn(const int k,
     float distances[labeled_length];
     // Compute the hamming distances between x and the labeled data.
     for (int j = 0; j < labeled_length; j++) {
-        distances[j] = hamming_distance(x + i*dim, labeled + j*dim, dim);
+        distances[j] = euclid_distance(x + i*dim, labeled + j*dim, dim);
     }
     // Predict the class for this data point.
     x_pred[i] = predict_class(
