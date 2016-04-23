@@ -37,7 +37,7 @@ void knn(const int k,
          const int labeled_length,
          data_t* x_pred) {
     float distances[labeled_length];
-    // Compute the euclidean distances between x and the labeled data.
+    // Compute the hamming distances between x and the labeled data.
     for (int j = 0; j < labeled_length; j++) {
         distances[j] = hamming_distance(x + i*dim, labeled + j*dim, dim);
     }
