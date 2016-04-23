@@ -62,7 +62,7 @@ int main() {
         printf("\n");
     }
 */
-    perform_knn(6, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
+    perform_knn(10, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
     int count_right = 0;    
     for (i = 0; i < x_length; i++) {
         if (x_pred[i] == x_labels[i]) {

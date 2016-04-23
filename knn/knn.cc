@@ -91,24 +91,37 @@ int predict_class(const float* distances,
 }
 
 int mode_labels(const vector< pair<int, float> >& labels) {
-    std::unordered_map<int, size_t> counts;
-    for (auto i : labels) {
-        ++counts[i.first];
+    vector<int> counts;
+    for (int i = 0; i < labels.size(); i++) {
+        counts.push_back(labels[i].first);
     }
 
-    std::multimap<size_t, int, std::greater<size_t> > inv;
-    for (auto p : counts)
-        inv.insert(std::make_pair(p.second, p.first));
+    sort(counts.begin(), counts.end());
 
-    auto e = inv.upper_bound(inv.begin()->first);
+    int number = counts[0];
+    int mode = number;
+    int count = 1;
+    int countMode = 1;
 
-    double sum = std::accumulate(inv.begin(),
-            e,
-            0.0,
-            [](double a, std::pair<size_t, int> const &b)
-                { return a + b.second; });
+    for (int i=1; i< counts.size(); i++)
+    {
+        if (counts[i] == number)
+        { // count occurrences of the current number
+            countMode++;
+        }
+        else
+        { // now this is a different number
+            if (count > countMode)
+            {
+                countMode = count; // mode is the biggest ocurrences
+                mode = number;
+            }
+            count = 1; // reset count for the new number
+            number = counts[i];
+        }
+    }
 
-    return sum / std::distance(inv.begin(), e);
+    return mode;
 }
 
 bool compare_labels(const pair<int, float>&i, const pair<int, float>&j) {
