@@ -1,7 +1,26 @@
 #ifndef ERR_CODE_H
 #define ERR_CODE_H
 
-#pragma oncee
+#pragma once
+/*----------------------------------------------------------------------------
+ *
+ * Name:     err_code()
+ *
+ * Purpose:  Function to output descriptions of errors for an input error code
+ *           and quit a program on an error with a user message
+ *
+ *
+ * RETURN:   echoes the input error code / echos user message and exits
+ *
+ * HISTORY:  Written by Tim Mattson, June 2010
+ *           This version automatically produced by genErrCode.py
+ *           script written by Tom Deakin, August 2013
+ *           Modified by Bruce Merry, March 2014
+ *           Updated by Tom Deakin, October 2014
+ *               Included the checkError function written by
+ *               James Price and Simon McIntosh-Smith
+ *
+ *----------------------------------------------------------------------------*/
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/opencl.h>
 #else

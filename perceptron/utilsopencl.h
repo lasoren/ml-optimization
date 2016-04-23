@@ -1,5 +1,9 @@
 #ifndef UTILSOPENCL_H
 #define UTILSOPENCL_H
+/*
+	Written by Gerardo Ravago
+*/
+
 
 #include <stdint.h>
 #include <time.h>
