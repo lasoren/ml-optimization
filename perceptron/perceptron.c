@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #define MAX_ITERS 10000
-#define TEST_CASE 1
+#define TEST_CASE 3
 
 typedef double data_t;
 
@@ -24,16 +24,16 @@ void assign_labels(data_t* x, int x_length, int x_dim, int test_case, char* y) {
     for(i=0; i < x_length; ++i){ 
         switch(test_case) {
             case 1:
-                y[i] = (0.2*(x[i*x_dim + 0] - 0.5)) +
-                    (.6-x[i*x_dim + 1]) > 0 ? 1 : -1;
+                y[i] = (0.2*(x[i*x_dim + 1] - 0.5)) +
+                    (.6-x[i*x_dim + 2]) > 0 ? 1 : -1;
                 break;
             case 2:
-                y[i] = (x[i*x_dim + 0]-.5)*(x[i*x_dim + 0]-.5) +
-                    (x[i*x_dim + 1]-.5)*(x[i*x_dim + 1]-.5) > 0.09 ? 1 : -1;
+                y[i] = (x[i*x_dim + 1]-.5)*(x[i*x_dim + 1]-.5) +
+                    (x[i*x_dim + 2]-.5)*(x[i*x_dim + 2]-.5) > 0.09 ? 1 : -1;
                 break;
             case 3:
-                y[i] = 4*(x[i*x_dim + 0]-.5)*4*(x[i*x_dim + 0]-.5) +
-                    (.2-x[i*x_dim + 1]) > 0 ? 1 : -1;
+                y[i] = 4*(x[i*x_dim + 1]-.5)*(x[i*x_dim + 1]-.5) +
+                    (.2-x[i*x_dim + 2]) > 0 ? 1 : -1;
                 break;
             default:
                 y[i] = 0;
@@ -64,9 +64,9 @@ void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
             }
         }
 
-        for(j=0;j<x_dim;++j){
-            printf("%f \n", w[j]);
-        }
+//        for(j=0;j<x_dim;++j){
+//            printf("%f \n", w[j]);
+//        }
         sum_missed = 0;
         for (i=0; i<x_length; ++i) {
             score[i] = 0;
@@ -76,14 +76,14 @@ void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
             misclassified[i] = score[i]*y[i] <= 0.0 ? 1 : 0;
             // Set not_classified to 1 if any data point is misclassfied
             // and count number of missed.
-            printf("%d ", misclassified[i]);
+//            printf("%d ", misclassified[i]);
 
             if (misclassified[i] == 1) {
                 sum_missed++;
                 not_classified = 1;
             }
         }
-        printf("\nIteration: %d with %d misclassified\n", iters, sum_missed);
+        printf("Iteration: %d with %d misclassified\n", iters, sum_missed);
     }
 
     if (sum_missed == 0) {
