@@ -4,8 +4,8 @@
 
 #include "utils.h"
 
-#define MAX_ITERS 10000
-#define TEST_CASE 3
+#define MAX_ITERS 100000
+#define TEST_CASE 1
 
 void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
     double w[x_dim];
@@ -61,7 +61,7 @@ void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
 
 
 int main(int argc, const char** argv){ 
-    const int X_length = 500;
+    const int X_length = 5000;
     const int X_dim = 6;
     data_t X[X_length*X_dim];
     char y[X_length];
@@ -100,6 +100,6 @@ int main(int argc, const char** argv){
         printf("\n");
     }
 
-    train_perceptron(X, y, 1.0, X_length, X_dim);
+    train_perceptron(X, y, 0.5, X_length, X_dim);
     return 0;
 }
