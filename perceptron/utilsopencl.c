@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include "utilsopencl.h"
 
+/*
+  Written by Gerardo Ravago
+*/
+
 struct timespec time1, time2;
 
 struct timespec diff(struct timespec start, struct timespec end)

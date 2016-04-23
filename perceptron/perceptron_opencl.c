@@ -14,16 +14,22 @@
 #include "device_picker.h"
 #include "utilsopencl.h"
 
-#define MAX_ITERS 				10000
-#define TEST_CASE 				1
-#define X_DIM                   6
-#define X_LENGTH                500
+#define MAX_ITERS 			10000
+#define TEST_CASE 			1
+#define X_DIM           6
+#define X_LENGTH        500
 #define ETA   					1.0
 #define MAX_SOURCE_SIZE (0x100000)
 
 const char* getfield(char* line, int num);
 
+/*
+  To compile, use shared compute cluster with the following compile directive:
+  gcc -I/usr/local/apps/cuda-4.2/include/ perceptron_opencl.c utils.c -o perceptron.o -lOpenCL -lrt
+*/
+  
 int main(){
+  // Declare OpenCL variables & objects
   cl_uint deviceIndex = 0;
   char *kernelsource;
   cl_ulong time_start, time_end;
@@ -41,6 +47,7 @@ int main(){
   cl_mem d_not_classified = NULL;
   cl_mem d_sum_missed = NULL;
 
+// Host variables
   int i, j;
   int line_counter = 0;
   char not_classified_bool = 1;
@@ -53,21 +60,21 @@ int main(){
   char* not_classified;
   int* sum_missed;
 
+// Declare sizes used to create buffers and allocate space on host for host arrays
   size_t X_size = X_DIM*X_LENGTH*sizeof(float);
   size_t W_size = X_DIM*sizeof(float);
   size_t Y_size = X_LENGTH*sizeof(char);
   size_t sum_missed_size = X_LENGTH*sizeof(int);
 
-  X = (float *)malloc(X_size);
-  W = (float *)malloc(W_size);
-  Y = (char *)malloc(Y_size);
-  misclassified = (char *)malloc(Y_size);
-  not_classified = (char *)malloc(Y_size);
-  sum_missed = (int *)malloc(sum_missed_size);
+// Allocate host arrays
+  X = (float *)malloc(X_size);  // Matrix containing data
+  W = (float *)malloc(W_size);  // Weight matrix
+  Y = (char *)malloc(Y_size);   // Array of labels for data
+  misclassified = (char *)malloc(Y_size); // Array to store which data elements are misclassified each iter
+  not_classified = (char *)malloc(Y_size); // Array to store how many threads have still not classified
+  sum_missed = (int *)malloc(sum_missed_size);  // Keeps track of total misclassified elements
 
-
-
-
+// Initialize host arrays
 for(i=0;i< X_LENGTH;i++){
 	misclassified[i] = 1;
 	not_classified[i] = 0;
@@ -77,6 +84,7 @@ for(i=0; i < X_DIM; i++){
 	W[i] = 0;
 }
 
+// Open file containing data & initialize X matrix
 FILE* stream = fopen("data.csv", "r");
 
     char line[1024];
@@ -96,6 +104,7 @@ FILE* stream = fopen("data.csv", "r");
         line_counter++;
     }
 
+    // Choose test case, which affects how data is labeled
     int test_case = TEST_CASE;
 
     for(i=0; i < X_LENGTH; ++i){ 
@@ -117,10 +126,9 @@ FILE* stream = fopen("data.csv", "r");
         }
     }
 
-
+  // Find a device (CPU or GPU)
   cl_device_id devices[MAX_DEVICES];
   unsigned numDevices = getDeviceList(devices);
-
 
   if (deviceIndex >= numDevices)
   {
@@ -134,13 +142,15 @@ FILE* stream = fopen("data.csv", "r");
   getDeviceName(device, name);
   printf("\nUsing OpenCL device: %s\n", name);
 
-  
+  // Create OpenCL context
   context = clCreateContext(0, 1, &device, NULL, NULL, &err);
   checkError(err, "Creating context");
 
+  // Create OpenCL command queue
   commands = clCreateCommandQueue(context, device, 0, &err);
   checkError(err, "Creating command queue");
 
+  // Create memory buffers for all of the device arrays/matrices; initialize all with data in their host counterparts
   d_X = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, X_size, X, &err);
   d_W = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_size, W, &err);
   d_Y = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, Y, &err);
@@ -148,6 +158,7 @@ FILE* stream = fopen("data.csv", "r");
   d_not_classified = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, not_classified, &err);
   d_sum_missed = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sum_missed_size, sum_missed, &err);
 
+// Read in source file (containing two kernels)
 FILE *fp;
 const char fileName[] = "./calculate_weights.cl";
 size_t source_size;
@@ -160,9 +171,11 @@ source_str = (char *)malloc(MAX_SOURCE_SIZE);
 source_size = fread(source_str, 1, MAX_SOURCE_SIZE, fp);
 fclose(fp);
 
+// Create program from the source file
   program = clCreateProgramWithSource(context, 1, (const char **) &source_str, (const size_t *) &source_size, &err);
   checkError(err, "Creating program from calculate_weights.cl");
 
+// Build program
   err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
   if(err != CL_SUCCESS){
   	size_t len;
@@ -174,19 +187,28 @@ fclose(fp);
   	return EXIT_FAILURE;
   }
 
+  // Create first kernel
   calculate_weights = clCreateKernel(program, "calculate_weights", &err);
   checkError(err, "Creating kernel from calculate_weights.cl");
   classify = clCreateKernel(program, "classify", &err);
   checkError(err, "Creating kernel from classify.cl");
+
+  // Create local variables of parameterized values
   int x_dim = X_DIM;
   int x_length = X_LENGTH;
   int max_iters = MAX_ITERS;
-// add CPU timing && make sure test_case 2 and 3 work
+
+  // Start timer (timing method is clock_gettime)
+  tick();
+
+  // Continue calling kernels while their is still data misclassified and iters is less than max iters
 while(not_classified_bool && iters <= max_iters){
 
+  // Increase iters and reinitialize not_classified_bool
   not_classified_bool = 0;
   iters++;
 
+  // Set first kernel arguments
   err = clSetKernelArg(calculate_weights, 0, sizeof(X_size), &d_X);
   checkError(err, "Setting kernel arg 0 -- d_X");
   err = clSetKernelArg(calculate_weights, 1, sizeof(Y_size), &d_Y);
@@ -201,17 +223,22 @@ while(not_classified_bool && iters <= max_iters){
   checkError(err, "Setting kernel arg 5 --- x_dim");
   printf("Launching calculate weights kernel!\n");
 
-  size_t global[2] = {500,1};
-  size_t local[2] = {500, 1};
+  // Set global and local size (i.e. number of work-groups and work-items)
+  size_t global[2] = {X_LENGTH,1};
+  size_t local[2] = {X_LENGTH, 1};
 
+  // Launch kernel
   err = clEnqueueNDRangeKernel(commands, calculate_weights, 2, NULL, (size_t *) &global, (size_t *) &local, 0, NULL, NULL);
   checkError(err, "Enqueueing calculate_weights kernel");
+  // clFinish blocks host code from executing until kernel has finished
   err = clFinish(commands);
   checkError(err, "Waiting for calculate_weights to finish");
+  // Read data back to host
   err = clEnqueueReadBuffer(commands, d_W, CL_TRUE, 0, W_size, W, 0, NULL, NULL);
   checkError(err, "Copying Weight matrix back to host!");
   d_W = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_size, W, &err);
 
+  // Set kernel arguments for second kernel
   err = clSetKernelArg(classify, 0, sizeof(X_size), &d_X);
   checkError(err, "Setting kernel arg 0 --- d_X from classify");
   err = clSetKernelArg(classify, 1, sizeof(Y_size), &d_Y);
@@ -229,50 +256,54 @@ while(not_classified_bool && iters <= max_iters){
   err = clSetKernelArg(classify, 7, sizeof(cl_int), &x_length);
   checkError(err, "Setting kernel arg 7 --- x_length from classify");
   printf("Launching classify kernel\n");
+
+  // Launch second kernel
   err = clEnqueueNDRangeKernel(commands, classify, 2, NULL, (size_t *) &global, (size_t *) &local, 0, NULL, NULL);
   checkError(err, "Enqueueing classify kernel");
   err = clFinish(commands);
   checkError(err, "Waiting for classify to finish");
+  // Copy data back to host
   err = clEnqueueReadBuffer(commands, d_not_classified, CL_TRUE, 0, Y_size, not_classified, 0, NULL, NULL);
   checkError(err, "Copying not_classified back to host!");
   err = clEnqueueReadBuffer(commands, d_sum_missed, CL_TRUE, 0, sum_missed_size, sum_missed, 0, NULL, NULL);
   checkError(err, "Copying sum_missed back to host!");
   err = clEnqueueReadBuffer(commands, d_misclassified, CL_TRUE, 0, Y_size, misclassified, 0, NULL, NULL);
   checkError(err, "Copying misclassified back to host!");
-
   d_misclassified = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, misclassified, &err);
-	for(i=0;i<x_length;i++){
+	
+  // Accumulate not_classified for all the work items to see if all data has been classified
+  for(i=0;i<x_length;i++){
 		not_classified_bool += not_classified[i];
 	}
 }
+// End timing
+tock();
+uint64_t exec_time;
+exec_time = get_execution_time();
 
+// Check how many are still misclassified (if iters reached max iters before all were classified)
 for(i=0;i<x_length;i++){
 	sum_missed_acc += sum_missed[i];
 }
 
+// Print results
+printf("Execution Time = %f ns", (double) exec_time);
 if(sum_missed_acc == 0){
 	printf("Perfectly separated data with %d iters\n", iters);
 }
 else{
 	printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed_acc);
 }
-//printf("Execution time in milliseconds: %f ms\n", total_time/1000000);
 
+// Free memory
   free(calculate_weights);
   free(classify);
-  printf("\nWeight Vector after first iter: \n");
-  for(i = 0; i < x_dim; i++){
-  	printf("%f ", W[i]);
-  }
-  printf("\n");
 
   clReleaseMemObject(d_W);
   clReleaseMemObject(d_X);
   clReleaseMemObject(d_Y);
   clReleaseMemObject(d_misclassified);
   clReleaseProgram(program);
-  //clReleaseKernel(calculate_weights);
-  //clReleaseKernel(classify);
   clReleaseCommandQueue(commands);
   clReleaseContext(context);
 
