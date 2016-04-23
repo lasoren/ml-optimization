@@ -1,18 +1,17 @@
-// gcc -o perceptron_pt.o perceptron_pt.c -lrt -lm
+//gcc -o perceptron_pt.o perceptron_pt.c utils.c -lrt -lm
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
 #include <pthread.h>
+#include "utils.h"
 
-#define MAX_ITERS 10000
-#define TEST_CASE 1
+#define MAX_ITERS 1000000
+#define TEST_CASE 2
 #define GIG 1000000000
 #define CPG 1.4           // Cycles per GHz -- Adjust to your computer
 #define global_X_dim 6
-
-typedef double data_t;
 
 double global_w[global_X_dim];
 int global_iters = 0;
@@ -35,85 +34,6 @@ struct thread_data{
   int X_dim;
   int NUM_THREADS;
 };
-
-const char* getfield(char* line, int num)
-{
-    const char* tok;
-    for (tok = strtok(line, ",");
-            tok && *tok;
-            tok = strtok(NULL, ",\n"))
-    {
-        if (!--num)
-            return tok;
-    }
-    return NULL;
-}
-
-void assign_labels(data_t* X, int X_length, int X_dim, int test_case, char* y) {
-    int i, j;
-    for(i=0; i<X_length; ++i){ 
-        switch(test_case){
-            case 1:
-                y[i] = (0.2*(X[i*X_dim + 0] - 0.5)) + (.6-X[i*X_dim + 1]) > 0 ? 1 : -1;
-                break;
-            case 2:
-                y[i] = (X[i*X_dim + 0]-.5)*(X[i*X_dim + 0]-.5) + (X[i*X_dim + 1]-.5)*(X[i*X_dim + 1]-.5) > 0.09 ? 1 : -1;
-                break;
-            case 3:
-                y[i] = 4*(X[i*X_dim + 0]-.5)*4*(X[i*X_dim + 0]-.5) + (.2-X[i*X_dim + 1]) > 0 ? 1 : -1;
-                break;
-            default:
-                y[i] = 0;
-        }
-    }
-}
-
-void train_perceptron(data_t* X, char* y, double eta, int X_length, int X_dim){
-    double w[X_dim];
-    double score[X_length];
-    char misclassified[X_length];
-    char not_classified = 1;
-    int i, j, sum_missed, iters = 0;
-
-    //set w to 0's, misclassified to 1's
-    memset(w, 0, X_dim*sizeof(double));
-    memset(misclassified, 1, X_length*sizeof(char));
-
-
-    while(not_classified && iters <= MAX_ITERS){
-        iters++;
-        not_classified = 0;
-        for(i=0; i<X_length; ++i){
-            if(misclassified[i] == 1){
-                for(j=0; j<X_dim; ++j){
-                    w[j] = w[j] + eta*X[i*X_dim + j]*y[i];
-                }
-            }
-        }
-        sum_missed = 0;
-        for (i=0; i<X_length; ++i){
-            score[i] = 0;
-            for (j = 0; j < X_dim; j++){
-                score[i] += X[i*X_dim + j]*w[j];
-            }
-            misclassified[i] = score[i]*y[i] <= 0.0 ? 1 : 0;
-            // Set not_classified to 1 if any data point is misclassfied
-            // and count number of missed.
-            if (misclassified[i] == 1) {
-                sum_missed++;
-                not_classified = 1;
-            }
-        }
-        printf("Iteration: %d with %d misclassified\n", iters, sum_missed);
-    }
-
-    if (sum_missed == 0) {
-        printf("Perfectly separated data\n");
-    } else {
-        printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed);
-    }
-}
-
 
 struct timespec diff(struct timespec start, struct timespec end){
   struct timespec temp;
@@ -276,7 +196,7 @@ int main(int argc, const char** argv){
     //initialization
     struct timespec diff(struct timespec start, struct timespec end);
     struct timespec time1, time2, difference;
-    int X_length = 500;
+    int X_length = 5000;
     int X_dim = 6;
     int test_case = TEST_CASE;
     data_t X[X_length*X_dim];
@@ -343,7 +263,7 @@ int main(int argc, const char** argv){
 
     //time the multithreaded perceptron function
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-    train_perceptron_pt(X, y, 1.0, X_length, X_dim, NUM_THREADS);
+    train_perceptron_pt(X, y, .50, X_length, X_dim, NUM_THREADS);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
     difference = diff(time1,time2);
     
