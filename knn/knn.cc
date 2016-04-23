@@ -107,14 +107,9 @@ int mode_labels(const vector< pair<int, float> >& labels) {
 
     for (int i=1; i< counts.size(); i++)
     {
-        if (counts[i] == number)
-        { // count occurrences of the current number
-            countMode++;
-        }
-        else
-        { // now this is a different number
-            if (count > countMode)
-            {
+        if (counts[i] == number) { // count occurrences of the current number
+            count++;
+            if (count > countMode) {
                 countMode = count; // mode is the biggest ocurrences
                 mode = number;
                 ties.clear();
@@ -122,14 +117,12 @@ int mode_labels(const vector< pair<int, float> >& labels) {
             } else if (count == countMode) {
                 ties.push_back(number);
             }
+        }
+        else { // now this is a different number
             count = 1; // reset count for the new number
             number = counts[i];
         }
     } 
-    if (count == countMode) {
-        ties.push_back(number);
-    }
-
 
     for (int i = 0; i < labels.size(); i++) {
         if (std::find(ties.begin(), ties.end(), labels[i].first) != ties.end()) {
