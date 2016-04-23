@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <math.h>
-
+#include "utils.h"
 // Assertion to check for errors
 #define CUDA_SAFE_CALL(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
@@ -23,6 +23,8 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 #define ETA   					1.0
 #define MAX_ITERS		10000
 #define IMUL(a, b) __mul24(a, b)
+
+typedef float data_t;
 
 void initializeArray1D(float *arr, int len, int seed);
 void initializeArray2D(float *arr, int len, int dim, int seed);
@@ -165,6 +167,8 @@ int main(int argc, char **argv){
         line_counter++;
     }
 
+    assign_labels(h_X, h_x_length, h_x_dim, test_case, h_Y);
+/*
     for(i=0; i < h_x_length; ++i){ 
         switch(test_case) {
             case 1:
@@ -182,7 +186,7 @@ int main(int argc, char **argv){
             default:
                 h_Y[i] = 0;
         }
-    }
+    }*/
  }
 
 

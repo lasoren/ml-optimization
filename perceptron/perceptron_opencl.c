@@ -20,8 +20,11 @@
 #define X_LENGTH        500
 #define ETA   					1.0
 #define MAX_SOURCE_SIZE (0x100000)
+#include "utils.h"
+#include "utilsopencl.h"
 
 const char* getfield(char* line, int num);
+typedef float data_t;
 
 /*
   To compile, use shared compute cluster with the following compile directive:
@@ -106,7 +109,9 @@ FILE* stream = fopen("data.csv", "r");
 
     // Choose test case, which affects how data is labeled
     int test_case = TEST_CASE;
+    assign_labels(X, X_LENGTH, X_DIM, test_case, Y);
 
+/*
     for(i=0; i < X_LENGTH; ++i){ 
         switch(test_case) {
             case 1:
@@ -125,7 +130,7 @@ FILE* stream = fopen("data.csv", "r");
                 Y[i] = 0;
         }
     }
-
+*/
   // Find a device (CPU or GPU)
   cl_device_id devices[MAX_DEVICES];
   unsigned numDevices = getDeviceList(devices);
