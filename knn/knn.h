@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-typedef char data_t;
+typedef double data_t;
 
 using namespace std;
 

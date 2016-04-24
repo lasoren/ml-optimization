@@ -37,9 +37,9 @@ void knn(const int k,
          const int labeled_length,
          data_t* x_pred) {
     float distances[labeled_length];
-    // Compute the euclidean distances between x and the labeled data.
+    // Compute the hamming distances between x and the labeled data.
     for (int j = 0; j < labeled_length; j++) {
-        distances[j] = hamming_distance(x + i*dim, labeled + j*dim, dim);
+        distances[j] = euclid_distance(x + i*dim, labeled + j*dim, dim);
     }
     // Predict the class for this data point.
     x_pred[i] = predict_class(
@@ -91,24 +91,46 @@ int predict_class(const float* distances,
 }
 
 int mode_labels(const vector< pair<int, float> >& labels) {
-    std::unordered_map<int, size_t> counts;
-    for (auto i : labels) {
-        ++counts[i.first];
+    vector<int> counts;
+    vector<int> ties;
+    for (int i = 0; i < labels.size(); i++) {
+        counts.push_back(labels[i].first);
     }
 
-    std::multimap<size_t, int, std::greater<size_t> > inv;
-    for (auto p : counts)
-        inv.insert(std::make_pair(p.second, p.first));
+    sort(counts.begin(), counts.end());
 
-    auto e = inv.upper_bound(inv.begin()->first);
+    int number = counts[0];
+    int mode = number;
+    int count = 1;
+    int countMode = 1;
+    ties.push_back(number);
 
-    double sum = std::accumulate(inv.begin(),
-            e,
-            0.0,
-            [](double a, std::pair<size_t, int> const &b)
-                { return a + b.second; });
+    for (int i=1; i< counts.size(); i++)
+    {
+        if (counts[i] == number) { // count occurrences of the current number
+            count++;
+            if (count > countMode) {
+                countMode = count; // mode is the biggest ocurrences
+                mode = number;
+                ties.clear();
+                ties.push_back(mode);
+            } else if (count == countMode) {
+                ties.push_back(number);
+            }
+        }
+        else { // now this is a different number
+            count = 1; // reset count for the new number
+            number = counts[i];
+        }
+    } 
 
-    return sum / std::distance(inv.begin(), e);
+    for (int i = 0; i < labels.size(); i++) {
+        if (std::find(ties.begin(), ties.end(), labels[i].first) != ties.end()) {
+            return labels[i].first;
+        }
+    }
+
+    return mode;
 }
 
 bool compare_labels(const pair<int, float>&i, const pair<int, float>&j) {
