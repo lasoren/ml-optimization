@@ -204,6 +204,7 @@ int main(int argc, const char** argv){
     long int i, j, k;
     long int time_sec, time_ns;
     int NUM_THREADS = 4;
+	float eta;
 
     memset(global_w, 0, (X_dim)*sizeof(double));
     printf("\n Hello World -- Perceptron multithreaded\n");
@@ -262,18 +263,21 @@ int main(int argc, const char** argv){
     }
 
     //time the multithreaded perceptron function
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-    train_perceptron_pt(X, y, .50, X_length, X_dim, NUM_THREADS);
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-    difference = diff(time1,time2);
-    
+   i=0;	
+	for(eta = 0.1; eta <= 1.0; eta+= .05){
+    	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+	    train_perceptron_pt(X, y, eta, X_length, X_dim, NUM_THREADS);
+    	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+    	difference = diff(time1,time2);
+    	printf("Eta:%f, Total time in ns: %f\n",eta,(double)
+    	(GIG * difference.tv_sec + difference.tv_nsec));
+	}
+
     //display the results
-    printf("Total cycles: %ld\n",(long int)((double)(CPG)*(double)
-    (GIG * difference.tv_sec + difference.tv_nsec)));
-    printf("Total time in ns: %f\n",(double)
-    (GIG * difference.tv_sec + difference.tv_nsec));
-    printf("GLOBAL ITERS = %d\n",global_iters);
-    printf("iters per thread = %d\n",global_iters/NUM_THREADS);
+    //printf("Total cycles: %ld\n",(long int)((double)(CPG)*(double)
+    //(GIG * difference.tv_sec + difference.tv_nsec)));
+//    printf("GLOBAL ITERS = %d\n",global_iters);
+ //   printf("iters per thread = %d\n",global_iters/NUM_THREADS);
     pthread_mutex_destroy(&weightMutex);
     pthread_mutex_destroy(&itersMutex);
     pthread_mutex_destroy(&classifiedMutex);
