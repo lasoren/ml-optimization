@@ -7,7 +7,7 @@
 
 #define GIG 1000000000
 #define MAX_ITERS 100000
-#define TEST_CASE 3
+#define TEST_CASE 1
 #define DEBUG 0
 
 int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
@@ -62,7 +62,7 @@ int main(int argc, const char** argv){
     struct timespec diff(struct timespec start, struct timespec end);
     struct timespec time1, time2, difference;
 	struct timespec differences[19];
-    const int X_length = 6500;
+    const int X_length = 10000;
     const int X_dim = 6;
     data_t X[X_length*X_dim];
     char y[X_length];
@@ -103,16 +103,18 @@ int main(int argc, const char** argv){
     }
 
     i=0;
-    printf("eta, running time, num iters\n");
-    for(eta = 0.1; eta <= 2.001; eta+= .05){
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-        int iterations = train_perceptron(X, y, eta, X_length, X_dim);
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-        difference = diff(time1,time2);
-        printf("%f, %f, %d\n",
-                eta,
-                (double) (GIG * difference.tv_sec + difference.tv_nsec),
-                iterations);
+    printf("size, running time, num iters\n");
+    for (int x_length = 500; x_length <= X_length; x_length += X_length/20) {
+        for(i = 0; i < 20; i++){
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+            int iterations = train_perceptron(X, y, eta, X_length, X_dim);
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+            difference = diff(time1,time2);
+            printf("%d, %f, %d\n",
+                    x_length,
+                    (double) (GIG * difference.tv_sec + difference.tv_nsec),
+                    iterations);
+        }
     }
     return 0;
 }
