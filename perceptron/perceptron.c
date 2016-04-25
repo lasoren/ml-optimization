@@ -51,7 +51,7 @@ int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
         printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed);
     }
     for (i = 0; i < x_dim; i++) {
-        printf("%f", w[i]);
+        printf("%f, ", w[i]);
     }
     printf("\n");
 #endif
