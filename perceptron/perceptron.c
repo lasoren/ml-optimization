@@ -61,8 +61,9 @@ int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
 int main(int argc, const char** argv){ 
     struct timespec diff(struct timespec start, struct timespec end);
     struct timespec time1, time2, difference;
-	struct timespec differences[19];
+    struct timespec differences[19];
     const int X_length = 10000;
+    int x_length;
     const int X_dim = 6;
     data_t X[X_length*X_dim];
     char y[X_length];
@@ -104,7 +105,7 @@ int main(int argc, const char** argv){
 
     i=0;
     printf("size, running time, num iters\n");
-    for (int x_length = 500; x_length <= X_length; x_length += X_length/20) {
+    for (x_length = 500; x_length <= X_length; x_length += X_length/20) {
         for(i = 0; i < 5; i++){
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
             int iterations = train_perceptron(X, y, eta, X_length, X_dim);

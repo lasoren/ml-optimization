@@ -15,6 +15,7 @@
 
 double global_w[global_X_dim];
 int global_iters = 0;
+int x_length;
 int global_sum_missed = 0;
 char global_countCheck = 0;
 char global_not_classified = 1;
@@ -255,7 +256,7 @@ int main(int argc, const char** argv){
     //time the multithreaded perceptron function
     i=0;	
     printf("size, running time, num iters\n");
-    for (int x_length = 500; x_length <= X_length; x_length += X_length/20) {
+    for (x_length = 500; x_length <= X_length; x_length += X_length/20) {
         for(i = 0; i < 5; i++){
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
             int iterations = train_perceptron(X, y, eta, X_length, X_dim);
