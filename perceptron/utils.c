@@ -25,7 +25,8 @@ void assign_labels(data_t* x, int x_length, int x_dim, int test_case, char* y) {
                 break;
             case 2:
                 y[i] = (x[i*x_dim + 1]-.5)*(x[i*x_dim + 1]-.5) +
-                    (x[i*x_dim + 2]-.5)*(x[i*x_dim + 2]-.5) > 0.09 ? 1 : -1;
+                    (x[i*x_dim + 2]-.5)*(x[i*x_dim + 2]-.5)
+                    > 0.09 ? 1 : -1;
                 break;
             case 3:
                 y[i] = 4*(x[i*x_dim + 1]-.5)*(x[i*x_dim + 1]-.5) +
