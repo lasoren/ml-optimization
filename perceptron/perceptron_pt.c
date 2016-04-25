@@ -52,7 +52,7 @@ void* perceptron_helper(void* threadarg){
     int X_length_high = X_length_low + (X_length/NUM_THREADS); 
  
     // printf("Hi! I am thread %d computing elements %d to %d\n",taskid,
-            X_length_low,X_length_high);
+    // X_length_low,X_length_high);
 
     char not_classified = 0;
     double w[X_dim];
