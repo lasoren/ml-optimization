@@ -51,7 +51,7 @@ void* perceptron_helper(void* threadarg){
     int X_length_low = (taskid * X_length)/NUM_THREADS;
     int X_length_high = X_length_low + (X_length/NUM_THREADS); 
  
-    printf("Hi! I am thread %d computing elements %d to %d\n",taskid,
+    // printf("Hi! I am thread %d computing elements %d to %d\n",taskid,
             X_length_low,X_length_high);
 
     char not_classified = 0;
@@ -139,11 +139,11 @@ void* perceptron_helper(void* threadarg){
     pthread_mutex_lock(&sumMissedMutex);
     if (global_sum_missed == 0) {
         global_countCheck++;
-        printf("Perfectly separated data\n");
-        printf("sum_missed local = %d\n",sum_missed);
+        // printf("Perfectly separated data\n");
+        // printf("sum_missed local = %d\n",sum_missed);
     } 
     else {
-        printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed);
+        // printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed);
     }
     pthread_mutex_unlock(&sumMissedMutex);
 }
@@ -259,9 +259,6 @@ int main(int argc, const char** argv){
         train_perceptron_pt(X, y, eta, X_length, X_dim, NUM_THREADS);
         clock_gettime(CLOCK_REALTIME, &time2);
         difference = diff(time1,time2);
-        memset(global_w, 0, (X_dim)*sizeof(double));
-        global_iters = 0;
-        global_not_classified = 1;
         printf("Eta:%f, Total time in ns: %f\n",eta,(double)
                 (GIG * difference.tv_sec + difference.tv_nsec));
         printf("Global iters: %d\n", global_iters);
@@ -269,6 +266,9 @@ int main(int argc, const char** argv){
             printf("%f, ", global_w[i]);
         }
         printf("\n");
+        memset(global_w, 0, (X_dim)*sizeof(double));
+        global_iters = 0;
+        global_not_classified = 1;
     }
 
     pthread_mutex_destroy(&weightMutex);
