@@ -14,17 +14,17 @@
 #include "device_picker.h"
 #include "utilsopencl.h"
 
-#define MAX_ITERS 			10000
-#define TEST_CASE 			1
+#define MAX_ITERS 	10000
+#define TEST_CASE 	3
 #define X_DIM           6
 #define X_LENGTH        500
-#define ETA   					1.0
+#define DELTA		0.05
+#define START_ETA	0.1
+#define ETA   		1.0
 #define MAX_SOURCE_SIZE (0x100000)
-#include "utils.h"
 #include "utilsopencl.h"
 
 const char* getfield(char* line, int num);
-typedef float data_t;
 
 /*
   To compile, use shared compute cluster with the following compile directive:
@@ -62,7 +62,12 @@ int main(){
   char* misclassified;
   char* not_classified;
   int* sum_missed;
-
+  float eta = ETA;
+  float start_eta = START_ETA;
+  float current_eta;
+  float delta = DELTA;
+  float exec_times[19][2];
+  int sum_missed_iters[19][2];
 // Declare sizes used to create buffers and allocate space on host for host arrays
   size_t X_size = X_DIM*X_LENGTH*sizeof(float);
   size_t W_size = X_DIM*sizeof(float);
@@ -89,9 +94,8 @@ for(i=0; i < X_DIM; i++){
 
 // Open file containing data & initialize X matrix
 FILE* stream = fopen("data.csv", "r");
-
     char line[1024];
-    while (fgets(line, 1024, stream))
+    while (fgets(line, 1024, stream) && line_counter < 500)
     {
         char* tmp = strdup(line);
         int idx = line_counter*X_DIM;
@@ -109,28 +113,28 @@ FILE* stream = fopen("data.csv", "r");
 
     // Choose test case, which affects how data is labeled
     int test_case = TEST_CASE;
-    assign_labels(X, X_LENGTH, X_DIM, test_case, Y);
+   // assign_labels(X, X_LENGTH, X_DIM, test_case, Y);
 
-/*
+
     for(i=0; i < X_LENGTH; ++i){ 
         switch(test_case) {
             case 1:
-                Y[i] = (0.2*(X[i*X_DIM + 0] - 0.5)) +
-                    (.6-X[i*X_DIM + 1]) > 0 ? 1 : -1;
+                Y[i] = (0.2*(X[i*X_DIM + 1] - 0.5)) +
+                    (.6-X[i*X_DIM + 2]) > 0 ? 1 : -1;
                 break;
             case 2:
-                Y[i] = (X[i*X_DIM + 0]-.5)*(X[i*X_DIM + 0]-.5) +
-                    (X[i*X_DIM + 1]-.5)*(X[i*X_DIM + 1]-.5) > 0.09 ? 1 : -1;
+                Y[i] = (X[i*X_DIM + 1]-.5)*(X[i*X_DIM + 1]-.5) +
+                    (X[i*X_DIM + 2]-.5)*(X[i*X_DIM + 2]-.5) > 0.09 ? 1 : -1;
                 break;
             case 3:
-                Y[i] = 4*(X[i*X_DIM + 0]-.5)*4*(X[i*X_DIM + 0]-.5) +
-                    (.2-X[i*X_DIM + 1]) > 0 ? 1 : -1;
+                Y[i] = 4*(X[i*X_DIM + 1]-.5)*4*(X[i*X_DIM + 1]-.5) +
+                    (.2-X[i*X_DIM + 2]) > 0 ? 1 : -1;
                 break;
             default:
                 Y[i] = 0;
         }
     }
-*/
+
   // Find a device (CPU or GPU)
   cl_device_id devices[MAX_DEVICES];
   unsigned numDevices = getDeviceList(devices);
@@ -202,10 +206,32 @@ fclose(fp);
   int x_dim = X_DIM;
   int x_length = X_LENGTH;
   int max_iters = MAX_ITERS;
-
+  int k, index;
+  index = 0; 
+  current_eta = start_eta;
   // Start timer (timing method is clock_gettime)
-  tick();
+  //tick();
+for(k = 0; k < 19; k++){
+  iters = 0;
+  sum_missed_acc=0;
+  not_classified_bool =1;
+  for(i=0;i< X_LENGTH;i++){
+	misclassified[i] = 1;
+	not_classified[i] = 0;
+	sum_missed[i] = 0;
+  }
+  for(i=0; i < X_DIM; i++){
+	W[i] = 0;
+  }  
+  d_X = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, X_size, X, &err);
+  d_W = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_size, W, &err);
+  d_Y = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, Y, &err);
+  d_misclassified = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, misclassified, &err);
+  d_not_classified = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, not_classified, &err);
+  d_sum_missed = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sum_missed_size, sum_missed, &err);
 
+
+  tick();
   // Continue calling kernels while their is still data misclassified and iters is less than max iters
 while(not_classified_bool && iters <= max_iters){
 
@@ -226,6 +252,8 @@ while(not_classified_bool && iters <= max_iters){
   checkError(err, "Setting kernel arg 4 --- x_length");
   err = clSetKernelArg(calculate_weights, 5, sizeof(cl_int), &x_dim);
   checkError(err, "Setting kernel arg 5 --- x_dim");
+  err = clSetKernelArg(calculate_weights, 6, sizeof(cl_float), &current_eta);
+  checkError(err, "Setting kernel arg 6 --- eta");
   printf("Launching calculate weights kernel!\n");
 
   // Set global and local size (i.e. number of work-groups and work-items)
@@ -240,6 +268,12 @@ while(not_classified_bool && iters <= max_iters){
   checkError(err, "Waiting for calculate_weights to finish");
   // Read data back to host
   err = clEnqueueReadBuffer(commands, d_W, CL_TRUE, 0, W_size, W, 0, NULL, NULL);
+  printf("Weight vector\n");
+  for(i=0; i < X_DIM; i++){
+   	printf("%f ", W[i]);
+  }
+  printf("\n");
+
   checkError(err, "Copying Weight matrix back to host!");
   d_W = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_size, W, &err);
 
@@ -286,18 +320,32 @@ tock();
 uint64_t exec_time;
 exec_time = get_execution_time();
 
+exec_times[index][0] = current_eta;
+exec_times[index][1] = (float) (exec_time);
 // Check how many are still misclassified (if iters reached max iters before all were classified)
 for(i=0;i<x_length;i++){
 	sum_missed_acc += sum_missed[i];
 }
 
 // Print results
-printf("Execution Time = %f ns", (double) exec_time);
+//printf("Execution Time = %f ns", (double) exec_time);
 if(sum_missed_acc == 0){
 	printf("Perfectly separated data with %d iters\n", iters);
 }
 else{
 	printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed_acc);
+}
+sum_missed_iters[index][0] = sum_missed_acc;
+sum_missed_iters[index][1] = iters;
+printf("current_eta: %f	start_eta: %f index: %d delta: %f\n", current_eta, start_eta, index, delta);
+	current_eta+= delta;
+	index++;
+// end of big for loop
+}
+
+printf("Eta:		Exec time (ns): 	Sum Missed: 	Iters: \n");
+for(k =0; k < 19; k++){
+	printf("%f\t\t%f\t%d\t%d\n", exec_times[k][0], exec_times[k][1], sum_missed_iters[k][0], sum_missed_iters[k][1]);
 }
 
 // Free memory

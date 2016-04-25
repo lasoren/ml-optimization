@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <math.h>
-#include "utils.h"
+
 // Assertion to check for errors
 #define CUDA_SAFE_CALL(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
@@ -13,19 +13,23 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 	}
 }
 
-#define NUM_THREADS_PER_BLOCK 	5000	
+#define NUM_THREADS_PER_BLOCK 	500	
 #define NUM_BLOCKS 				1	
 #define PRINT_TIME 				1
 #define TOL						1e-6
 #define TEST_CASE				1
 #define X_DIM                   6
-#define X_LENGTH                5000
+#define X_LENGTH                500
 #define ETA   					1.0
 #define MAX_ITERS		10000
 #define IMUL(a, b) __mul24(a, b)
 
-__global__ void calculate_weights(data_t* X, char* Y, data_t* W, char* misclassified,int x_length, int x_dim, double eta){
-	__shared__ data_t block_weights[NUM_THREADS_PER_BLOCK][X_DIM]; // 500 x 6
+void initializeArray1D(float *arr, int len, int seed);
+void initializeArray2D(float *arr, int len, int dim, int seed);
+const char* getfield(char* line, int num);
+
+__global__ void calculate_weights(float* X, char* Y, float* W, char* misclassified,int x_length, int x_dim, double eta){
+	__shared__ float block_weights[NUM_THREADS_PER_BLOCK][X_DIM]; // 500 x 6
 	int tx = threadIdx.x;
 
 	int i,j;
@@ -54,8 +58,8 @@ __global__ void calculate_weights(data_t* X, char* Y, data_t* W, char* misclassi
 	}
 }
 
-__global__ void classify(data_t* X, char* Y, data_t* W, char* misclassified, char* not_classified, int* sum_missed,  int x_dim){
-	__shared__  data_t score_shared[NUM_THREADS_PER_BLOCK];
+__global__ void classify(float* X, char* Y, float* W, char* misclassified, char* not_classified, int* sum_missed,  int x_dim){
+	__shared__  float score_shared[NUM_THREADS_PER_BLOCK];
 	int tx = threadIdx.x;
 	int j;
 	score_shared[tx] =0;
@@ -89,8 +93,8 @@ int main(int argc, char **argv){
 
 
 	// global variables on GPU
-	data_t* g_W;			
-	data_t* g_X;
+	float* g_W;			
+	float* g_X;
 	float* g_score;
 	char* g_Y;
 	char* g_not_classified;
@@ -112,9 +116,9 @@ int main(int argc, char **argv){
 	CUDA_SAFE_CALL(cudaSetDevice(1));
 
 	// Allocate GPU memory
-	size_t allocSize_X =  h_x_dim * h_x_length * sizeof(data_t);
+	size_t allocSize_X =  h_x_dim * h_x_length * sizeof(float);
 	size_t allocSize_Y = h_x_length * sizeof(char);
-	size_t allocSize_W = h_x_dim * sizeof(data_t);
+	size_t allocSize_W = h_x_dim * sizeof(float);
 	size_t allocSize_Score = h_x_length * sizeof(float);
 	size_t allocSize_sumMissed = sizeof(int)*h_x_length;
 
@@ -127,9 +131,9 @@ int main(int argc, char **argv){
 	CUDA_SAFE_CALL(cudaMalloc((void **)&g_not_classified, allocSize_Y));
 
 	// Allocate arrays on host memory
-	h_X                     = (data_t *) malloc(allocSize_X);
+	h_X                     = (float *) malloc(allocSize_X);
 	h_Y                   	= (char *) malloc(allocSize_Y);
-	h_W              	= (data_t *) malloc(allocSize_W);
+	h_W              	= (float *) malloc(allocSize_W);
 	h_misclassified 	= (char *) malloc(allocSize_Y);
 	h_score			= (float *) malloc(allocSize_Score);
 	h_sum_missed		= (int *) malloc(allocSize_sumMissed);
@@ -161,8 +165,6 @@ int main(int argc, char **argv){
         line_counter++;
     }
 
-    assign_labels(h_X, h_x_length, h_x_dim, test_case, h_Y);
-/*
     for(i=0; i < h_x_length; ++i){ 
         switch(test_case) {
             case 1:
@@ -180,7 +182,7 @@ int main(int argc, char **argv){
             default:
                 h_Y[i] = 0;
         }
-    }*/
+    }
  }
 
 
@@ -264,3 +266,39 @@ cudaEventDestroy(start);
 }
 
 
+// average all elements in a column in the weight matrix and put in weight array
+
+
+void initializeArray1D(float *arr, int len, int seed) {
+	int i;
+	float randNum;
+	srand(seed);
+
+	for (i = 0; i < len; i++) {
+		randNum = (float) rand();
+		arr[i] = randNum;
+	}
+}
+
+void initializeArray2D(float *arr, int len, int dim, int seed) {
+	int i;
+	float randNum;
+	srand(seed);
+
+	for (i = 0; i < len*dim; i++) {
+		randNum = (float) rand();
+		arr[i] = randNum;
+	}
+}
+
+const char* getfield(char* line, int num) {
+    const char* tok;
+    for (tok = strtok(line, ",");
+            tok && *tok;
+            tok = strtok(NULL, ",\n"))
+    {
+        if (!--num)
+            return tok;
+    }
+    return NULL;
+}

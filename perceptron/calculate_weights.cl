@@ -1,10 +1,13 @@
-__kernel void calculate_weights(__global float* X, __global char* Y, __global float* W, __global char* misclassified, int x_length, int x_dim){
+
+__kernel void calculate_weights(__global float* X, __global char* Y, __global float* W, 
+	__global char* misclassified, int x_length, int x_dim, float eta){
+	
 	int worker_id = get_global_id(0);
 	__local float block_weights[500][6];
 	int i,j;
 	if(misclassified[worker_id] == 1){
 		for(j=0;j<x_dim; j++){
-			block_weights[worker_id][j] = 1.0*X[worker_id*x_dim+j]*Y[worker_id];
+			block_weights[worker_id][j] = eta*X[worker_id*x_dim+j]*Y[worker_id];
 		}
 	}
 	else{
@@ -14,14 +17,12 @@ __kernel void calculate_weights(__global float* X, __global char* Y, __global fl
 	}	
 
 	barrier(CLK_LOCAL_MEM_FENCE);
-	char counter = 0; //for debugging
 	float sum;
 	if(worker_id==399){
 		for(j=0;j<x_dim;j++){
 			sum = 0;
 			for(i=0;i<x_length;i++){
-				sum = sum+  block_weights[i][j];
-				counter++;
+				sum = sum + block_weights[i][j];
 			}
 			W[j]+= sum;
 		}
@@ -30,7 +31,9 @@ __kernel void calculate_weights(__global float* X, __global char* Y, __global fl
 
 }
 
-__kernel void classify(__global float* X, __global char* Y, __global float* W, __global char* misclassified, __global char* not_classified, __global int* sum_missed, int x_dim, int x_length ){
+__kernel void classify(__global float* X, __global char* Y, __global float* W, 
+	__global char* misclassified, __global char* not_classified, __global int* sum_missed, int x_dim, int x_length ){
+	
 	__local float score_shared[500];
 	int worker_id = get_global_id(0);
 	int j;
