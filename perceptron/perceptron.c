@@ -50,6 +50,10 @@ int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
     } else {
         printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed);
     }
+    for (i = 0; i < x_dim; i++) {
+        printf("%f", w[i]);
+    }
+    printf("\n");
 #endif
     return iters;
 }
@@ -63,7 +67,7 @@ int main(int argc, const char** argv){
     data_t X[X_length*X_dim];
     char y[X_length];
     int i, j;
-	float eta;
+    float eta;
 
     int test_case = TEST_CASE;
     
@@ -100,14 +104,14 @@ int main(int argc, const char** argv){
 
     i=0;
     printf("eta, running time, num iters\n");
-    for(eta = 0.1; eta <= 1.0; eta+= .05){
+    for(eta = 0.1; eta <= 2.001; eta+= .05){
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
         int iterations = train_perceptron(X, y, eta, X_length, X_dim);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
         difference = diff(time1,time2);
         printf("%f, %f, %d\n",
-                eta,(double)
-                (GIG * difference.tv_sec + difference.tv_nsec),
+                eta,
+                (double) (GIG * difference.tv_sec + difference.tv_nsec),
                 iterations);
     }
     return 0;
