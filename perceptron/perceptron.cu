@@ -232,20 +232,21 @@ for(k = 0; k < 19; k++){
 	cudaEventRecord(start,0);
 	#endif
 	int max_iters = MAX_ITERS;
+
+
 while(not_classified && iters <= MAX_ITERS){
-		printf("Max iters: %d\n", max_iters);
 		// Increment iters
 		iters++;
 		// Set condition to zero (to avoid infinite while loop) and set it to one if there's an element that is misclassified
 		not_classified = 0;
 		// One block with 500 threads (one thread working on each row of data in X)
-		calculate_weights<<<1,500>>>(g_X, g_Y,g_W,g_misclassified,500, 6, current_eta);
+		calculate_weights<<<NUM_BLOCKS, NUM_THREADS_PER_BLOCK>>>(g_X, g_Y,g_W,g_misclassified,h_x_length, h_x_dim, current_eta);
 		CUDA_SAFE_CALL(cudaPeekAtLastError());
 		cudaDeviceSynchronize();
 		// Copy weight vector to host
 		CUDA_SAFE_CALL(cudaMemcpy(h_W, g_W, allocSize_W, cudaMemcpyDeviceToHost));
 		// Check classification success		
-		classify<<<1,500>>>(g_X, g_Y, g_W, g_misclassified, g_not_classified, g_sum_missed,6);
+		classify<<<NUM_BLOCKS, NUM_THREADS_PER_BLOCK>>>(g_X, g_Y, g_W, g_misclassified, g_not_classified, g_sum_missed,h_x_dim);
 		CUDA_SAFE_CALL(cudaPeekAtLastError());
 		cudaDeviceSynchronize();
 		// Copy arrays back to host
@@ -254,9 +255,9 @@ while(not_classified && iters <= MAX_ITERS){
 		for(i=0;i<h_x_length;i++){
 			not_classified += h_not_classified[i];		
 		}
-	printf("Not classified in loop: %d", not_classified);
-	printf("Iters: %d", iters);
 }
+	
+
 	#ifdef PRINT_TIME
 	cudaEventRecord(stop,0);
 	cudaEventSynchronize(stop);
