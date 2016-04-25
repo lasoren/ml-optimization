@@ -186,7 +186,7 @@ int main(int argc, const char** argv){
     //initialization
     struct timespec diff(struct timespec start, struct timespec end);
     struct timespec time1, time2, difference;
-    int X_length = 20000;
+    int X_length = 6500;
     int X_dim = 6;
     int test_case = TEST_CASE;
     data_t X[X_length*X_dim];
