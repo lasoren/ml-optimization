@@ -261,7 +261,11 @@ int main(int argc, const char** argv){
         difference = diff(time1,time2);
         printf("Eta:%f, Total time in ns: %f\n",eta,(double)
                 (GIG * difference.tv_sec + difference.tv_nsec));
-        printf("Global iters: %d", global_iters);
+        printf("Global iters: %d\n", global_iters);
+        for (i = 0; i < global_X_dim; i++) {
+            printf("%f, ", w[i]);
+        }
+        printf("\n");
     }
 
     pthread_mutex_destroy(&weightMutex);
