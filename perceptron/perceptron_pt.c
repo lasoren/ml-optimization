@@ -12,8 +12,10 @@
 #define GIG 1000000000
 #define CPG 1.4           // Cycles per GHz -- Adjust to your computer
 #define global_X_dim 6
+#define DEBUG 0
 
 double global_w[global_X_dim];
+char misclassified[10000];
 int global_iters = 0;
 int x_length;
 int global_sum_missed = 0;
@@ -51,64 +53,61 @@ void* perceptron_helper(void* threadarg){
     int NUM_THREADS = my_data->NUM_THREADS;
     int X_length_low = (taskid * X_length)/NUM_THREADS;
     int X_length_high = X_length_low + (X_length/NUM_THREADS); 
- 
-    // printf("Hi! I am thread %d computing elements %d to %d\n",taskid,
-    // X_length_low,X_length_high);
+
+#if DEBUG 
+    printf("Hi! I am thread %d computing elements %d to %d\n",taskid,
+            X_length_low,X_length_high);
+#endif
 
     char not_classified = 0;
-    double w[X_dim];
-    double score[X_length];
-    char misclassified[X_length];
+    double w = 0;
+    double score[X_length/NUM_THREADS];
     int i, j, sum_missed = 0;
+    int local_idx;
 
-    //set w to 0's, misclassified to 1's
-    memset(w, 0, (X_dim)*sizeof(double));
-    memset(misclassified, 1, (X_length)*sizeof(char));
     memset(score, 0, (X_length)*sizeof(double));
 
     //master loop
     while(global_not_classified && global_iters <= MAX_ITERS){
+        if (taskid == 0) {  // thread 1 updates the global values.
+            pthread_mutex_lock(&sumMissedMutex);
+            global_sum_missed = 0;
+            pthread_mutex_unlock(&sumMissedMutex);
 
-        pthread_mutex_lock(&sumMissedMutex);
-        global_sum_missed = 0;
-        pthread_mutex_unlock(&sumMissedMutex);
-
-        pthread_mutex_lock(&itersMutex);
-        global_iters++;
-        pthread_mutex_unlock(&itersMutex);
+            pthread_mutex_lock(&itersMutex);
+            global_iters++;
+            pthread_mutex_unlock(&itersMutex);
+        
+            pthread_mutex_lock(&classifiedMutex);
+            global_not_classified = 0;
+            pthread_mutex_unlock(&classifiedMutex);
+        }
 
         //set a barrier here to make sure no threads escape the loop before others
         pthread_barrier_wait(&iterationBarrier);
-        pthread_mutex_lock(&classifiedMutex);
-        global_not_classified = 0;
-        pthread_mutex_unlock(&classifiedMutex);
 
-        not_classified = 0;
-        for(i=X_length_low; i<X_length_high; ++i){
+        // each thread updates one index of the weight vector.
+        for(i = 0; i < X_length; ++i){
             if(misclassified[i] == 1){
-                for(j=0; j<X_dim; ++j){
-                    w[j] = w[j] + eta*X[i*(X_dim) + j]*y[i];
-                }
+                w += eta*X[i*(X_dim) + taskid]*y[i];
             }
         }
-
-        //this version of multithreading simply adds local weight to global weight vector.
-        //note that this might not work for non linear data, thus we have another version that uses
-        //task parallelism in order to try different eta values to obtain a solution that converges.
-        pthread_mutex_lock(&weightMutex);
-        for(j=0; j<X_dim; ++j){
-            global_w[j] += w[j];
-        }
-        pthread_mutex_unlock(&weightMutex);
-
+        // each thread updates global weight vector.
+        global_w[taskid] += w;
+        
+        // global w updated by all threads. Ready to compute misclassified data.
+        pthread_barrier_wait(&iterationBarrier);
+        
+        // each thread classifies 1/NUM_THREADS of the data.
         sum_missed = 0;
-        for (i=X_length_low; i<X_length_high; ++i){
-            score[i] = 0;
-            for(j=0; j<X_dim; ++j){
-                score[i] += X[i*(X_dim) + j]*global_w[j];
+        local_idx = 0;
+        for (i = X_length_low; i<X_length_high; ++i){
+            score[local_idx] = 0;
+            for(j = 0; j < X_dim; ++j){
+                score[local_idx] += X[i*(X_dim) + j]*global_w[j];
             }
-            
-            misclassified[i] = score[i]*y[i] <= 0.0 ? 1 : 0;
+
+            misclassified[i] = score[local_idx]*y[i] <= 0.0 ? 1 : 0;
             // Set not_classified to 1 if any data point is misclassfied
             // and count number of missed.
             if (misclassified[i] == 1) {
@@ -116,24 +115,20 @@ void* perceptron_helper(void* threadarg){
                 not_classified = 1;
             }
         }
-         
-        //must make sure all threads arrive here before setting
-        //global_not_classified to prevent unwanted loop escapes
-        pthread_barrier_wait(&iterationBarrier);
-        
+
         pthread_mutex_lock(&classifiedMutex);
-        if(not_classified){
+        if(not_classified) {
             global_not_classified = 1;
         }
         pthread_mutex_unlock(&classifiedMutex);
+        
+        pthread_mutex_lock(&sumMissedMutex);
+        global_sum_missed += sum_missed;
+        pthread_mutex_unlock(&sumMissedMutex);
 
         //must place barrier here because in our next segment we check
         //the value of global_sum_missed to verify our seperated data. 
         pthread_barrier_wait(&iterationBarrier);
-
-        pthread_mutex_lock(&sumMissedMutex);
-        global_sum_missed += sum_missed;
-        pthread_mutex_unlock(&sumMissedMutex);
     }
 
     //verify our seperated data, countCheck should be equal to our NUM_THREADS 
@@ -157,6 +152,7 @@ void train_perceptron_pt(data_t* X, char* y, double eta, int X_length, int X_dim
     struct thread_data thread_data_array[NUM_THREADS];
     int rc;
     long t;
+    memset(misclassified, 1, (X_length)*sizeof(char));
 
     for (t = 0; t < NUM_THREADS; t++) {
         thread_data_array[t].thread_id = t;
@@ -194,7 +190,7 @@ int main(int argc, const char** argv){
     char y[X_length];
     long int i, j, k;
     long int time_sec, time_ns;
-    int NUM_THREADS = 4;
+    int NUM_THREADS = 6;
 	float eta;
 
     memset(global_w, 0, (X_dim)*sizeof(double));
@@ -259,7 +255,7 @@ int main(int argc, const char** argv){
     for (x_length = 500; x_length <= X_length; x_length += X_length/20) {
         for(i = 0; i < 5; i++){
             clock_gettime(CLOCK_REALTIME, &time1);
-            train_perceptron_pt(X, y, 1.0, x_length, X_dim, 4);
+            train_perceptron_pt(X, y, 1.0, x_length, X_dim, NUM_THREADS);
             clock_gettime(CLOCK_REALTIME, &time2);
             difference = diff(time1,time2);
             printf("%d, %f, %d\n",
