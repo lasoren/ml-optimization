@@ -105,7 +105,7 @@ int main(int argc, const char** argv){
     i=0;
     printf("size, running time, num iters\n");
     for (int x_length = 500; x_length <= X_length; x_length += X_length/20) {
-        for(i = 0; i < 20; i++){
+        for(i = 0; i < 5; i++){
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
             int iterations = train_perceptron(X, y, eta, X_length, X_dim);
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
