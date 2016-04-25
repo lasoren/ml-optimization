@@ -47,9 +47,10 @@ struct timespec diff(struct timespec start, struct timespec end){
   return temp;
 }
 
-//helper function for multithreaded perceptron
+// helper function for multithreaded perceptron
 void* perceptron_helper(void* threadarg){
-    //pass the thread a struct containing its thread_id, X and y data, length, and dimensions as well as number of threads.
+    // pass the thread a struct containing its thread_id, X and y data, length,
+    // and dimensions as well as number of threads.
     struct thread_data *my_data;
     my_data = (struct thread_data *) threadarg;
     int taskid = my_data->thread_id;
@@ -62,7 +63,8 @@ void* perceptron_helper(void* threadarg){
     int X_length_low = (taskid * X_length)/NUM_THREADS;
     int X_length_high = X_length_low + (X_length/NUM_THREADS); 
  
-    printf("Hi! I am thread %d computing elements %d to %d\n",taskid,X_length_low,X_length_high);
+    printf("Hi! I am thread %d computing elements %d to %d\n",taskid,
+            X_length_low,X_length_high);
 
     char not_classified = 0;
     double w[X_dim];
@@ -126,9 +128,8 @@ void* perceptron_helper(void* threadarg){
             }
         }
          
-        //printf("Hi! I am thread %d and I am still not classified.\n",taskid);
-
-        //must make sure all threads arrive here before setting global_not_classified to prevent unwanted loop escapes
+        //must make sure all threads arrive here before setting
+        //global_not_classified to prevent unwanted loop escapes
         pthread_barrier_wait(&iterationBarrier);
         
         pthread_mutex_lock(&classifiedMutex);
@@ -137,7 +138,8 @@ void* perceptron_helper(void* threadarg){
         }
         pthread_mutex_unlock(&classifiedMutex);
 
-        //must place barrier here because in our next segment we check the value of global_sum_missed to verify our seperated data. 
+        //must place barrier here because in our next segment we check
+        //the value of global_sum_missed to verify our seperated data. 
         pthread_barrier_wait(&iterationBarrier);
 
         pthread_mutex_lock(&sumMissedMutex);

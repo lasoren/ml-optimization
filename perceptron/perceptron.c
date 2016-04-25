@@ -10,7 +10,7 @@
 #define TEST_CASE 3
 #define DEBUG 0
 
-int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
+int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
     double w[x_dim];
     double score[x_length];
     char misclassified[x_length];
