@@ -8,13 +8,14 @@
 #include "utils.h"
 
 #define MAX_ITERS 1000000
-#define TEST_CASE 2
+#define TEST_CASE 1
 #define GIG 1000000000
 #define CPG 1.4           // Cycles per GHz -- Adjust to your computer
 #define global_X_dim 6
 
 double global_w[global_X_dim];
 int global_iters = 0;
+int x_length;
 int global_sum_missed = 0;
 char global_countCheck = 0;
 char global_not_classified = 1;
@@ -186,7 +187,7 @@ int main(int argc, const char** argv){
     //initialization
     struct timespec diff(struct timespec start, struct timespec end);
     struct timespec time1, time2, difference;
-    int X_length = 6500;
+    int X_length = 10000;
     int X_dim = 6;
     int test_case = TEST_CASE;
     data_t X[X_length*X_dim];
@@ -254,21 +255,21 @@ int main(int argc, const char** argv){
 
     //time the multithreaded perceptron function
     i=0;	
-    for(eta = 0.1; eta <= 1.0; eta+= .05){
-        clock_gettime(CLOCK_REALTIME, &time1);
-        train_perceptron_pt(X, y, eta, X_length, X_dim, NUM_THREADS);
-        clock_gettime(CLOCK_REALTIME, &time2);
-        difference = diff(time1,time2);
-        printf("Eta:%f, Total time in ns: %f\n",eta,(double)
-                (GIG * difference.tv_sec + difference.tv_nsec));
-        printf("Global iters: %d\n", global_iters);
-        for (i = 0; i < global_X_dim; i++) {
-            printf("%f, ", global_w[i]);
+    printf("size, running time, num iters\n");
+    for (x_length = 500; x_length <= X_length; x_length += X_length/20) {
+        for(i = 0; i < 5; i++){
+            clock_gettime(CLOCK_REALTIME, &time1);
+            train_perceptron_pt(X, y, 1.0, x_length, X_dim, 4);
+            clock_gettime(CLOCK_REALTIME, &time2);
+            difference = diff(time1,time2);
+            printf("%d, %f, %d\n",
+                    x_length,
+                    (double) (GIG * difference.tv_sec + difference.tv_nsec),
+                    global_iters);
+            memset(global_w, 0, (X_dim)*sizeof(double));
+            global_iters = 0;
+            global_not_classified = 1;
         }
-        printf("\n");
-        memset(global_w, 0, (X_dim)*sizeof(double));
-        global_iters = 0;
-        global_not_classified = 1;
     }
 
     pthread_mutex_destroy(&weightMutex);
