@@ -259,6 +259,7 @@ int main(int argc, const char** argv){
         train_perceptron_pt(X, y, eta, X_length, X_dim, NUM_THREADS);
         clock_gettime(CLOCK_REALTIME, &time2);
         difference = diff(time1,time2);
+        memset(global_w, 0, (X_dim)*sizeof(double));
         printf("Eta:%f, Total time in ns: %f\n",eta,(double)
                 (GIG * difference.tv_sec + difference.tv_nsec));
         printf("Global iters: %d\n", global_iters);
