@@ -62,7 +62,7 @@ int main(int argc, const char** argv){
     struct timespec diff(struct timespec start, struct timespec end);
     struct timespec time1, time2, difference;
 	struct timespec differences[19];
-    const int X_length = 20000;
+    const int X_length = 6500;
     const int X_dim = 6;
     data_t X[X_length*X_dim];
     char y[X_length];
