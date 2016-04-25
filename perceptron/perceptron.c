@@ -5,6 +5,7 @@
 
 #include "utils.h"
 
+#define GIG 1000000000
 #define MAX_ITERS 100000
 #define TEST_CASE 1
 
