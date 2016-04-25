@@ -259,7 +259,7 @@ int main(int argc, const char** argv){
     for (x_length = 500; x_length <= X_length; x_length += X_length/20) {
         for(i = 0; i < 5; i++){
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-            int iterations = train_perceptron_pt(X, y, 1.0, x_length, X_dim);
+            int iterations = train_perceptron_pt(X, y, 1.0, x_length, X_dim, 4);
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
             difference = diff(time1,time2);
             printf("%d, %f, %d\n",
