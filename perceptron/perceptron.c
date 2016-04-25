@@ -7,7 +7,7 @@
 
 #define GIG 1000000000
 #define MAX_ITERS 100000
-#define TEST_CASE 1
+#define TEST_CASE 3
 #define DEBUG 0
 
 int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
