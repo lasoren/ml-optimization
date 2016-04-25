@@ -73,7 +73,7 @@ int main(int argc, const char** argv){
     
     int line_counter = 0;
 
-    FILE* stream = fopen("data_short.csv", "r");
+    FILE* stream = fopen("data_short2.csv", "r");
 
     char line[1024];
     while (fgets(line, 1024, stream))
