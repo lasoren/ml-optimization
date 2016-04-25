@@ -8,8 +8,9 @@
 #define GIG 1000000000
 #define MAX_ITERS 100000
 #define TEST_CASE 1
+#define DEBUG 0
 
-void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
+int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
     double w[x_dim];
     double score[x_length];
     char misclassified[x_length];
@@ -43,23 +44,14 @@ void train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim){
             }
         }
     }
+#if DEBUG
     if (sum_missed == 0) {
         printf("Perfectly separated data\n");
     } else {
         printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed);
     }
-}
-
-struct timespec diff(struct timespec start, struct timespec end){
-  struct timespec temp;
-  if ((end.tv_nsec-start.tv_nsec)<0) {
-    temp.tv_sec = end.tv_sec-start.tv_sec-1;
-    temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
-  } else {
-    temp.tv_sec = end.tv_sec-start.tv_sec;
-    temp.tv_nsec = end.tv_nsec-start.tv_nsec;
-  }
-  return temp;
+#endif
+    return iters;
 }
 
 int main(int argc, const char** argv){ 
@@ -106,14 +98,17 @@ int main(int argc, const char** argv){
         printf("\n");
     }
 
-	i=0;	
-	for(eta = 0.1; eta <= 1.0; eta+= .05){
-    	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-	    train_perceptron(X, y, eta, X_length, X_dim);
-    	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-    	difference = diff(time1,time2);
-    	printf("Eta:%f, Total time in ns: %f\n",eta,(double)
-    	(GIG * difference.tv_sec + difference.tv_nsec));
-	}
+    i=0;
+    printf("eta, running time, num iters\n");
+    for(eta = 0.1; eta <= 1.0; eta+= .05){
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+        int iterations = train_perceptron(X, y, eta, X_length, X_dim);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+        difference = diff(time1,time2);
+        printf("%f, %f, %d\n",
+                eta,(double)
+                (GIG * difference.tv_sec + difference.tv_nsec),
+                iterations);
+    }
     return 0;
 }
