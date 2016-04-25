@@ -263,7 +263,7 @@ int main(int argc, const char** argv){
                 (GIG * difference.tv_sec + difference.tv_nsec));
         printf("Global iters: %d\n", global_iters);
         for (i = 0; i < global_X_dim; i++) {
-            printf("%f, ", w[i]);
+            printf("%f, ", global_w[i]);
         }
         printf("\n");
     }
