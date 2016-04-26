@@ -69,8 +69,7 @@ void* perceptron_helper(void* threadarg){
     memset(score, 0, (X_length/NUM_THREADS)*sizeof(double));
 
     //master loop
-    while(global_not_classified && global_iters <= MAX_ITERS){
-
+	do{
         //set a barrier here to make sure no threads escape the loop before others
         pthread_barrier_wait(&iterationBarrier);
 
@@ -140,7 +139,7 @@ void* perceptron_helper(void* threadarg){
         //must place barrier here because in our next segment we check
         //the value of global_sum_missed to verify our seperated data. 
         pthread_barrier_wait(&iterationBarrier2);
-    }
+    }while(global_not_classified && global_iters <= MAX_ITERS);
 
     //verify our seperated data, countCheck should be equal to our NUM_THREADS 
     pthread_mutex_lock(&sumMissedMutex);
