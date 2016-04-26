@@ -258,7 +258,7 @@ int main(int argc, const char** argv){
     if (pthread_barrier_init(&iterationBarrier2, NULL, NUM_THREADS) != 0){
         printf("\n sum missed mutex init failed\n");
         return 1;
-
+    }
     //time the multithreaded perceptron function
     i=0;	
     printf("size, running time, num iters\n");
