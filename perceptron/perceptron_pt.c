@@ -82,7 +82,9 @@ void* perceptron_helper(void* threadarg){
             pthread_mutex_lock(&itersMutex);
             global_iters++;
             pthread_mutex_unlock(&itersMutex);
-        
+#if DEBUG
+            printf("Global iters: %d\n", global_iters);
+#endif        
             pthread_mutex_lock(&classifiedMutex);
             global_not_classified = 0;
             pthread_mutex_unlock(&classifiedMutex);
@@ -132,7 +134,10 @@ void* perceptron_helper(void* threadarg){
         pthread_mutex_lock(&sumMissedMutex);
         global_sum_missed += sum_missed;
         pthread_mutex_unlock(&sumMissedMutex);
-
+#if DEBUG
+        if (taskid == 0)
+            printf("End of iteration, global missed: %d\n", global_sum_missed); 
+#endif
         //must place barrier here because in our next segment we check
         //the value of global_sum_missed to verify our seperated data. 
         pthread_barrier_wait(&iterationBarrier2);
