@@ -100,9 +100,7 @@ void* perceptron_helper(void* threadarg){
             }
         }
         // each thread updates global weight vector.
-        pthread_mutex_lock(&weightMutex);
         global_w[taskid] += w;
-        pthread_mutex_lock(&weightMutex);
         
         // global w updated by all threads. Ready to compute misclassified data.
         pthread_barrier_wait(&iterationBarrier);
