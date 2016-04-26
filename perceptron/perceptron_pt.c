@@ -26,6 +26,7 @@ pthread_mutex_t itersMutex;
 pthread_mutex_t classifiedMutex;
 pthread_mutex_t sumMissedMutex;
 pthread_barrier_t iterationBarrier;
+pthread_barrier_t iterationBarrier2;
 
 /* used to pass parameters to worker threads */
 struct thread_data{
@@ -88,7 +89,7 @@ void* perceptron_helper(void* threadarg){
         }
         
         //set a barrier here to make sure no threads escape the loop before others
-        pthread_barrier_wait(&iterationBarrier);
+        pthread_barrier_wait(&iterationBarrier2);
 
         // each thread updates one index of the weight vector.
         for(i = 0; i < X_length; ++i){
@@ -134,7 +135,7 @@ void* perceptron_helper(void* threadarg){
 
         //must place barrier here because in our next segment we check
         //the value of global_sum_missed to verify our seperated data. 
-        pthread_barrier_wait(&iterationBarrier);
+        pthread_barrier_wait(&iterationBarrier2);
     }
 
     //verify our seperated data, countCheck should be equal to our NUM_THREADS 
@@ -254,6 +255,9 @@ int main(int argc, const char** argv){
         printf("\n sum missed mutex init failed\n");
         return 1;
     }
+    if (pthread_barrier_init(&iterationBarrier2, NULL, NUM_THREADS) != 0){
+        printf("\n sum missed mutex init failed\n");
+        return 1;
 
     //time the multithreaded perceptron function
     i=0;	
