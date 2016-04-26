@@ -107,6 +107,7 @@ void* perceptron_helper(void* threadarg){
         
         // each thread classifies 1/NUM_THREADS of the data.
         sum_missed = 0;
+        not_classified = 0;
         local_idx = 0;
         for (i = X_length_low; i<X_length_high; ++i){
             score[local_idx] = 0;
