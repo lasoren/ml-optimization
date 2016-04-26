@@ -69,6 +69,9 @@ void* perceptron_helper(void* threadarg){
 
     //master loop
     while(global_not_classified && global_iters <= MAX_ITERS){
+        //set a barrier here to make sure no threads escape the loop before others
+        pthread_barrier_wait(&iterationBarrier);
+
         if (taskid == 0) {  // thread 1 updates the global values.
             pthread_mutex_lock(&sumMissedMutex);
             global_sum_missed = 0;
@@ -82,9 +85,6 @@ void* perceptron_helper(void* threadarg){
             global_not_classified = 0;
             pthread_mutex_unlock(&classifiedMutex);
         }
-
-        //set a barrier here to make sure no threads escape the loop before others
-        pthread_barrier_wait(&iterationBarrier);
 
         // each thread updates one index of the weight vector.
         for(i = 0; i < X_length; ++i){
