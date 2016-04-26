@@ -65,7 +65,7 @@ void* perceptron_helper(void* threadarg){
     int i, j, sum_missed = 0;
     int local_idx;
 
-    memset(score, 0, (X_length)*sizeof(double));
+    memset(score, 0, (X_length/NUM_THREADS)*sizeof(double));
 
     //master loop
     while(global_not_classified && global_iters <= MAX_ITERS){
