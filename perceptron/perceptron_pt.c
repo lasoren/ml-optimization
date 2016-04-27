@@ -121,6 +121,7 @@ void* perceptron_helper(void* threadarg){
                 sum_missed++;
                 not_classified = 1;
             }
+            local_idx++;
         }
 
         pthread_mutex_lock(&classifiedMutex);
