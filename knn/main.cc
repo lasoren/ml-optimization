@@ -1,4 +1,4 @@
-//g++ -o knn.o knn.cc main.cc -lrt -lm
+//g++ -std=c++0x -o knn.o knn.cc main.cc -lrt -lm
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
