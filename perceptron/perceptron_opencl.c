@@ -233,8 +233,8 @@ for(k = 0; k < 19; k++){
 
   tick();
   // Continue calling kernels while their is still data misclassified and iters is less than max iters
-while(not_classified_bool && iters <= max_iters){
 
+while(not_classified_bool && iters <= max_iters){
   // Increase iters and reinitialize not_classified_bool
   not_classified_bool = 0;
   iters++;
@@ -267,13 +267,8 @@ while(not_classified_bool && iters <= max_iters){
   err = clFinish(commands);
   checkError(err, "Waiting for calculate_weights to finish");
   // Read data back to host
-  err = clEnqueueReadBuffer(commands, d_W, CL_TRUE, 0, W_size, W, 0, NULL, NULL);
-  printf("Weight vector\n");
-  for(i=0; i < X_DIM; i++){
-   	printf("%f ", W[i]);
-  }
-  printf("\n");
 
+  err = clEnqueueReadBuffer(commands, d_W, CL_TRUE, 0, W_size, W, 0, NULL, NULL);
   checkError(err, "Copying Weight matrix back to host!");
   d_W = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_size, W, &err);
 
