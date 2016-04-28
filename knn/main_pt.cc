@@ -8,6 +8,7 @@
 
 #include "knn_pt.h"
 
+#define GIG 1000000000
 using namespace std;
 
 const char* getfield(char* line, int num);
