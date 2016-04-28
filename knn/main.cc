@@ -1,3 +1,4 @@
+//g++ -o knn.o knn.cc main.cc -lrt -lm
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -10,6 +11,9 @@ using namespace std;
 const char* getfield(char* line, int num);
 
 int main() {
+    //initialization
+    struct timespec diff(struct timespec start, struct timespec end);
+    struct timespec time1, time2, difference;
     const int x_length = 500;
     const int x_dim = 2;
     int i, j;
@@ -62,8 +66,15 @@ int main() {
         printf("\n");
     }
 */
+
+    clock_gettime(CLOCK_REALTIME, &time1);
     perform_knn(6, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
-    int count_right = 0;    
+    clock_gettime(CLOCK_REALTIME, &time2);
+    difference = diff(time1,time2);
+	printf("size, running time\n");
+    printf("%d, %f\n",
+    x_length,(double) (GIG * difference.tv_sec + difference.tv_nsec));
+ 	int count_right = 0;    
     for (i = 0; i < x_length; i++) {
         if (x_pred[i] == x_labels[i]) {
             count_right++;
