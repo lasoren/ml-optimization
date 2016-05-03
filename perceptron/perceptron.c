@@ -66,10 +66,7 @@ int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
 }
 
 int main(int argc, const char** argv){ 
-#if TIMING
     struct timespec time1, time2, difference;
-    struct timespec differences[19];
-#endif
     const int x_test_length = 25000;
     const int x_dim = 23;
     data_t* x_test = (data_t*) malloc(x_test_length*x_dim*sizeof(data_t));
@@ -105,7 +102,11 @@ int main(int argc, const char** argv){
         printf("\n");
     }
 
+    clock_gettime(CLOCK_REALTIME, &time1);
     int iterations = train_perceptron(x_test, y, 0.1, x_test_length, x_dim);
+    clock_gettime(CLOCK_REALTIME, &time2);
+	difference = diff(time1,time2);
+    printf("%d, %f, %d\n", x_test_length, (double) (GIG * difference.tv_sec + difference.tv_nsec),iterations);
     printf("Number of iterations: %d\n", iterations); 
 
 #if TIMING
