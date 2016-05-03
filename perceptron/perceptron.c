@@ -8,7 +8,7 @@
 #include "utils.h"
 
 #define GIG 1000000000
-#define MAX_ITERS 100000
+#define MAX_ITERS 1000
 #define TEST_CASE 1
 #define DEBUG 1
 #define TIMING 0
@@ -105,7 +105,7 @@ int main(int argc, const char** argv){
         printf("\n");
     }
 
-    int iterations = train_perceptron(x_test, y, 1.0, x_test_length, x_dim);
+    int iterations = train_perceptron(x_test, y, 0.1, x_test_length, x_dim);
     printf("Number of iterations: %d\n", iterations); 
 
 #if TIMING
@@ -114,7 +114,7 @@ int main(int argc, const char** argv){
     for (x_length = 600; x_length <= X_length; x_length += 600) {
         for(i = 0; i < 5; i++){
             clock_gettime(CLOCK_REALTIME, &time1);
-            int iterations = train_perceptron(X, y, 1.0, x_length, X_dim);
+            int iterations = train_perceptron(X, y, 0.1, x_length, X_dim);
             clock_gettime(CLOCK_REALTIME, &time2);
             difference = diff(time1,time2);
             printf("%d, %f, %d\n",
