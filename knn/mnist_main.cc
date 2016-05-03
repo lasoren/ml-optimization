@@ -1,3 +1,5 @@
+// g++ $(pkg-config --cflags --libs opencv) -o knn.o mnist_main.cc knn.cc 
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -26,7 +28,7 @@ int main() {
     int i, j;
 
     data_t x[x_length*x_dim];
-    data_t* labeled = (char*) malloc(labeled_length*x_dim*sizeof(data_t));
+    data_t* labeled = (data_t*) malloc(labeled_length*x_dim*sizeof(data_t));
     data_t x_labels[x_length];
     data_t x_pred[x_length];
     data_t labels[labeled_length];
@@ -34,7 +36,7 @@ int main() {
     int line_counter = 0;
     FILE* stream = fopen("Xtrain.csv", "r");
     char line[10240];
-    while (fgets(line, 1024, stream))
+    while (fgets(line, 10240, stream))
     {
         char* tmp = strdup(line);
         int idx = line_counter*x_dim;

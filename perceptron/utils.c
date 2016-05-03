@@ -15,6 +15,21 @@ const char* getfield(char* line, int num) {
     return NULL;
 }
 
+void get_fields(char* line, data_t* data, int max_width) {
+    int count = 0; 
+    const char* tok;
+    for (tok = strtok(line, ",");
+            tok && *tok;
+            tok = strtok(NULL, ",\n"))
+    {
+        data[count] = (data_t) strtod(tok, NULL);
+        count++;
+        if (count == max_width) {
+            break;
+        }
+    }
+}
+
 void assign_labels(data_t* x, int x_length, int x_dim, int test_case, char* y) {
     int i, j;
     for(i=0; i < x_length; ++i){ 
@@ -38,6 +53,7 @@ void assign_labels(data_t* x, int x_length, int x_dim, int test_case, char* y) {
     }
 }
 
+#if TIMING
 struct timespec diff(struct timespec start, struct timespec end){
   struct timespec temp;
   if ((end.tv_nsec-start.tv_nsec)<0) {
@@ -49,3 +65,4 @@ struct timespec diff(struct timespec start, struct timespec end){
   }
   return temp;
 }
+#endif

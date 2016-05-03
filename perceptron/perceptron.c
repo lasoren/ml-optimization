@@ -1,3 +1,5 @@
+// gcc -o perceptron.o perceptron.c utils.c
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -8,7 +10,8 @@
 #define GIG 1000000000
 #define MAX_ITERS 100000
 #define TEST_CASE 1
-#define DEBUG 0
+#define DEBUG 1
+#define TIMING 0
 
 int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
     double w[x_dim];
@@ -43,6 +46,10 @@ int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
                 not_classified = 1;
             }
         }
+#if DEBUG
+        if (iters%1000 == 0)
+            printf("Number of iterations so far: %d\n", iters);
+#endif
     }
 #if DEBUG
     if (sum_missed == 0) {
@@ -59,50 +66,49 @@ int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
 }
 
 int main(int argc, const char** argv){ 
-    struct timespec diff(struct timespec start, struct timespec end);
+#if TIMING
     struct timespec time1, time2, difference;
     struct timespec differences[19];
-    const int X_length = 10000;
-    int x_length;
-    const int X_dim = 6;
-    data_t X[X_length*X_dim];
-    char y[X_length];
+#endif
+    const int x_test_length = 25000;
+    const int x_dim = 24;
+    data_t* x_test = (data_t*) malloc(x_test_length*x_dim*sizeof(data_t));
+    char y[x_test_length];
     int i, j;
     float eta;
 
-    int test_case = TEST_CASE;
-    
     int line_counter = 0;
+    FILE* stream = fopen("../datasets/percept-credit-card-clients.csv", "r");
 
-    FILE* stream = fopen("data.csv", "r");
-
-    char line[1024];
-    while (fgets(line, 1024, stream))
+    char line[8192];
+    while (fgets(line, 8192, stream))
     {
         char* tmp = strdup(line);
-        int idx = line_counter*X_dim;
-        X[idx] = 1.0;
-        X[idx + 1] = strtod(getfield(tmp, 1), NULL);
+        int idx = line_counter*x_dim;
+        // Get the 23 x dimensions.
+        get_fields(tmp, x_test+idx, x_dim);
+        // Get the 1 Y dimension from the dataset.
         tmp = strdup(line);
-        X[idx + 2] = strtod(getfield(tmp, 2), NULL);
-        X[idx + 3] = X[idx + 1]*X[idx + 2]; // xy
-        X[idx + 4] = X[idx + 1]*X[idx + 1]; // x^2 
-        X[idx + 5] = X[idx + 2]*X[idx + 2]; // y^2
-        // NOTE strtok clobbers tmp
+        y[line_counter] = (char) strtod(getfield(tmp, 24), NULL);
         free(tmp);
         line_counter++;
+        if (line_counter == x_test_length) {
+            break;
+        }
     }
-
-    assign_labels(X, X_length, X_dim, test_case, y);
-
-    for (i = 0; i < X_length; i++) {
-        for (j = 0; j < X_dim; j++) {
-            printf("%f,", X[i*X_dim+j]);
+    
+    for (i = 0; i < 50; i++) {
+        for (j = 0; j < x_dim; j++) {
+            printf("%f,", x_test[i*x_dim+j]);
         }
         printf("%d",y[i]);
         printf("\n");
     }
 
+    int iterations = train_perceptron(x_test, y, 1.0, x_test_length, x_dim);
+    printf("Number of iterations: %d\n", iterations); 
+
+#if TIMING
     i=0;
     printf("size, running time, num iters\n");
     for (x_length = 600; x_length <= X_length; x_length += 600) {
@@ -117,5 +123,7 @@ int main(int argc, const char** argv){
                     iterations);
         }
     }
+#endif
     return 0;
 }
+
