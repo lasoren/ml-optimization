@@ -52,7 +52,7 @@ void* perceptron_helper(void* threadarg){
     int X_length = my_data->X_length;
     int X_dim = my_data->X_dim;
     int NUM_THREADS = my_data->NUM_THREADS;
-	int start_index = (x_dim + NUM_THREADS - 1)*taskid/NUM_THREADS;
+	int start_index = (X_dim + NUM_THREADS - 1)*taskid/NUM_THREADS;
     int X_length_low = (taskid * X_length)/NUM_THREADS;
     int X_length_high = X_length_low + (X_length/NUM_THREADS); 
 
@@ -201,7 +201,7 @@ int main(int argc, const char** argv){
     int X_length = 25000;
     int X_dim = 23;
     int test_case = TEST_CASE;
-    data_t X[X_length*X_dim];
+    data_t* X = (data_t*) malloc(X_length*X_dim*sizeof(data_t));
     char y[X_length];
     long int i, j, k;
     long int time_sec, time_ns;
@@ -218,15 +218,15 @@ int main(int argc, const char** argv){
     while (fgets(line, 8192, stream))
     {
         char* tmp = strdup(line);
-        int idx = line_counter*x_dim;
+        int idx = line_counter*X_dim;
         // Get the 23 x dimensions.
-        get_fields(tmp, x_test+idx, x_dim);
+        get_fields(tmp, X+idx, X_dim);
         // Get the 1 Y dimension from the dataset.
         tmp = strdup(line);
         y[line_counter] = (char) strtod(getfield(tmp, 24), NULL);
         free(tmp);
         line_counter++;
-        if (line_counter == x_test_length) {
+        if (line_counter == X_length) {
             break;
         }
     }
