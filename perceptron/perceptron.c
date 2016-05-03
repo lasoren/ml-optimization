@@ -71,7 +71,7 @@ int main(int argc, const char** argv){
     struct timespec differences[19];
 #endif
     const int x_test_length = 25000;
-    const int x_dim = 24;
+    const int x_dim = 23;
     data_t* x_test = (data_t*) malloc(x_test_length*x_dim*sizeof(data_t));
     char y[x_test_length];
     int i, j;
