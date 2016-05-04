@@ -81,7 +81,7 @@ int main() {
     }
 
     cout << "k, running time, percentage right\n" << endl;
-    for (int k = 0; k <= 10; k++) { 
+    for (int k = 1; k <= 10; k++) { 
         clock_gettime(CLOCK_REALTIME, &time1);
         perform_knn(k, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
         clock_gettime(CLOCK_REALTIME, &time2);
