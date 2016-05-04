@@ -1,3 +1,4 @@
+#include <time.h>
 
 typedef double data_t;
 
@@ -7,6 +8,5 @@ void get_fields(char* line, data_t* data, int max_width);
 const char* getfield(char* line, int num);
 
 void assign_labels(data_t* x, int x_length, int x_dim, int test_case, char* y);
-#if TIMING
+
 struct timespec diff(struct timespec start, struct timespec end);
-#endif

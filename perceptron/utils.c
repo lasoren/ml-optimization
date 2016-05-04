@@ -53,7 +53,6 @@ void assign_labels(data_t* x, int x_length, int x_dim, int test_case, char* y) {
     }
 }
 
-#if TIMING
 struct timespec diff(struct timespec start, struct timespec end){
     struct timespec temp;
     if ((end.tv_nsec-start.tv_nsec)<0) {
@@ -65,4 +64,3 @@ struct timespec diff(struct timespec start, struct timespec end){
     }
     return temp;
 }
-#endif
