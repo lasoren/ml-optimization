@@ -22,9 +22,11 @@ void perform_knn(const int k,
     // Loop through data points and classify each based on nearest labeled
     // neighbors.
     for (int i = 0; i < x_length; i++) {
+#if DEBUG
         if (i%100 == 0) {
             cout << "Done classifying: " << i << endl;
         }
+#endif
         knn(k, x, i, labeled, labels, dim, labeled_length, x_pred);
     }
 }

@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include "utils.h"
 
@@ -105,7 +104,7 @@ int main(int argc, const char** argv){
     clock_gettime(CLOCK_REALTIME, &time1);
     int iterations = train_perceptron(x_test, y, 0.1, x_test_length, x_dim);
     clock_gettime(CLOCK_REALTIME, &time2);
-	difference = diff(time1,time2);
+    difference = diff(time1,time2);
     printf("%d, %f, %d\n", x_test_length, (double) (GIG * difference.tv_sec + difference.tv_nsec),iterations);
     printf("Number of iterations: %d\n", iterations); 
 

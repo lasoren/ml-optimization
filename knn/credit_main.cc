@@ -1,4 +1,4 @@
-// g++ -o knn.o credit_main.cc knn.cc 
+// g++ -o knn.o credit_main.cc knn.cc utils.cc
 
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +6,10 @@
 #include <iostream>
 
 #include "knn.h"
+#include "utils.h"
+
+#define DEBUG 0
+#define GIG 1000000000
 
 using namespace std;
 
@@ -15,6 +19,7 @@ void get_fields(char* line, data_t* data, int max_width);
 const char* getfield(char* line, int num);
 
 int main() {
+    struct timespec time1, time2, difference;
     const int x_length = 5000;
     const int labeled_length = 25000;
     const int x_dim = 23;
@@ -75,43 +80,23 @@ int main() {
         printf("\n");
     }
 
-    perform_knn(6, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
-    int count_right = 0;    
-    for (i = 0; i < x_length; i++) {
-        if (x_pred[i] == x_labels[i]) {
-            count_right++;
-        }
-    } 
-    cout << "Percentage correctly classified: " <<
-        100*count_right / (float) x_length << endl;
+    cout << "k, running time, percentage right\n" << endl;
+    for (int k = 0; k <= 10; k++) { 
+        clock_gettime(CLOCK_REALTIME, &time1);
+        perform_knn(k, x, labeled, labels, x_dim, x_length, labeled_length, x_pred);
+        clock_gettime(CLOCK_REALTIME, &time2);
+        difference = diff(time1,time2);
+        int count_right = 0;    
+        for (i = 0; i < x_length; i++) {
+            if (x_pred[i] == x_labels[i]) {
+                count_right++;
+            }
+        } 
+        cout << k << ", " << 
+            (double) (GIG * difference.tv_sec + difference.tv_nsec) << ", " <<
+            100*count_right / (float) x_length << endl;
+    }
     free(labeled);
     return 0;
-}
-
-void get_fields(char* line, data_t* data, int max_width) {
-    int count = 0; 
-    const char* tok;
-    for (tok = strtok(line, ",");
-            tok && *tok;
-            tok = strtok(NULL, ",\n"))
-    {
-        data[count] = (data_t) strtod(tok, NULL);
-        count++;
-        if (count == max_width) {
-            break;
-        }
-    }
-}
-
-const char* getfield(char* line, int num) {
-    const char* tok;
-    for (tok = strtok(line, ",");
-            tok && *tok;
-            tok = strtok(NULL, ",\n"))
-    {
-        if (!--num)
-            return tok;
-    }
-    return NULL;
 }
 
