@@ -39,7 +39,6 @@ void* knn_helper(void* threadarg){
         }
         knn(k, x, i, labeled, labels, dim, labeled_length, x_pred);
     }
-
 }
 
 void perform_knn_pt(int k,
