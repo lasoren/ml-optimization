@@ -57,11 +57,11 @@ int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
                 w_converge[j] = w[j];
             }
         } else {
-            if (iters_since_best >= 10) {
+            if (iters_since_best >= 1000) {
                 for (j = 0; j < x_dim; j++) {
                     w[j] = w_converge[j];
-                    break;
                 }
+                break;
             }
             iters_since_best++;
         }
@@ -74,7 +74,7 @@ int train_perceptron(data_t* x, char* y, double eta, int x_length, int x_dim) {
     if (sum_missed == 0) {
         printf("Perfectly separated data\n");
     } else {
-        printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed);
+        printf("Finished MAX_ITERS and still %d misclassified\n", min_missed);
     }
 #endif
     // Set into the global variable so I can access in main.
