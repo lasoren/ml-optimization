@@ -14,14 +14,15 @@
 #include "device_picker.h"
 #include "utilsopencl.h"
 
-#define MAX_ITERS 	200500
-#define TEST_CASE 	2
+#define MAX_ITERS 	100000
+#define TEST_CASE 	3
 #define X_DIM           6
-#define X_LENGTH        10000
+#define X_LENGTH        6000
 #define DELTA		0.05
 #define START_ETA	0.1
 #define ETA   		1.0
 #define MAX_SOURCE_SIZE (0x100000)
+#define WORKGROUP	20
 
 const char* getfield(char* line, int num);
 
@@ -65,17 +66,13 @@ int main(){
   int* sum_missed;
   float* W_mat;
   float eta = ETA;
-  float start_eta = START_ETA;
   float current_eta;
-  float delta = DELTA;
-  float exec_times[19][2];
-  int sum_missed_iters[19][2];
 // Declare sizes used to create buffers and allocate space on host for host arrays
   size_t X_size = X_DIM*X_LENGTH*sizeof(float);
   size_t W_size = X_DIM*sizeof(float);
   size_t Y_size = X_LENGTH*sizeof(char);
   size_t sum_missed_size = X_LENGTH*sizeof(int);
-  size_t W_mat_size = 20*X_DIM*sizeof(float);
+  size_t W_mat_size = WORKGROUP*X_DIM*sizeof(float);
 
 // Allocate host arrays
   X = (float *)malloc(X_size);  // Matrix containing data
@@ -95,7 +92,7 @@ for(i=0;i< X_LENGTH;i++){
 for(i=0; i < X_DIM; i++){
 	W[i] = 0;
 }
-int size = 20*X_DIM;
+int size = WORKGROUP*X_DIM;
 for(i=0; i < size; i++){
 	W_mat[i] = 0;
 }
@@ -103,7 +100,7 @@ for(i=0; i < size; i++){
 // Open file containing data & initialize X matrix
 FILE* stream = fopen("data.csv", "r");
     char line[1024];
-    while (fgets(line, 1024, stream))
+    while (fgets(line, 1024, stream) && line_counter < X_LENGTH)
     {
         char* tmp = strdup(line);
         int idx = line_counter*X_DIM;
@@ -164,16 +161,6 @@ FILE* stream = fopen("data.csv", "r");
   // Create OpenCL command queue
   commands = clCreateCommandQueue(context, device, 0, &err);
   checkError(err, "Creating command queue");
-
-  // Create memory buffers for all of the device arrays/matrices; initialize all with data in their host counterparts
-  /*d_X = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, X_size, X, &err);
-  d_W = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_size, W, &err);
-  d_Y = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, Y, &err);
-  d_misclassified = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, misclassified, &err);
-  d_not_classified = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sum_missed_size, not_classified, &err);
-  d_sum_missed = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sum_missed_size, sum_missed, &err);
-  d_W_mat = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_mat, W_mat_size, &err);*/
-// Read in source file (containing two kernels)
 FILE *fp;
 const char fileName[] = "./calculate_weights_multi.cl";
 size_t source_size;
@@ -215,10 +202,7 @@ fclose(fp);
   int max_iters = MAX_ITERS;
   int k, index;
   index = 0; 
-  current_eta = start_eta;
-  // Start timer (timing method is clock_gettime)
-  //tick();
-for(k = 0; k < 19; k++){
+  current_eta = eta;
   iters = 0;
   sum_missed_acc=0;
   not_classified_bool =1;
@@ -244,7 +228,7 @@ for(k = 0; k < 19; k++){
 
   tick();
   // Continue calling kernels while their is still data misclassified and iters is less than max iters
-while(not_classified_bool && iters <= max_iters){
+while(not_classified_bool  && iters <= max_iters){
 
   // Increase iters and reinitialize not_classified_bool
   not_classified_bool = 0;
@@ -255,8 +239,6 @@ while(not_classified_bool && iters <= max_iters){
   checkError(err, "Setting kernel arg 0 -- d_X");
   err = clSetKernelArg(calculate_weights, 1, sizeof(Y_size), &d_Y);
   checkError(err, "Setting kernel arg 1 -- d_Y");
-  //err = clSetKernelArg(calculate_weights, 2, sizeof(W_size), &d_W);
-  //checkError(err, "Setting kernel arg 2 --- d_W");
   err = clSetKernelArg(calculate_weights, 2, sizeof(W_mat_size), &d_W_mat);
   checkError(err, "Setting kernel arg 2 -- d_W_mat from classify");
   err = clSetKernelArg(calculate_weights, 3, sizeof(Y_size), &d_misclassified);
@@ -267,11 +249,10 @@ while(not_classified_bool && iters <= max_iters){
   checkError(err, "Setting kernel arg 5 --- x_dim");
   err = clSetKernelArg(calculate_weights, 6, sizeof(cl_float), &current_eta);
   checkError(err, "Setting kernel arg 6 --- eta");
-  //printf("Launching calculate weights kernel!\n");
 
   // Set global and local size (i.e. number of work-groups and work-items)
   size_t global[2] = {X_LENGTH,1};
-  size_t local[2] = {500, 1};
+  size_t local[2] = {300, 1};
 
   // Launch kernel
   err = clEnqueueNDRangeKernel(commands, calculate_weights, 2, NULL, (size_t *) &global, (size_t *) &local, 0, NULL, NULL);
@@ -282,23 +263,12 @@ while(not_classified_bool && iters <= max_iters){
   err = clEnqueueReadBuffer(commands, d_W_mat, CL_TRUE, 0, W_mat_size, W_mat, 0, NULL, NULL);
   checkError(err, "Reading W_Mat back to host");
   for(i=0; i < X_DIM; i++){
-	for(j=0;j < 20; j++){
+	for(j=0;j < WORKGROUP; j++){
 		W[i] += W_mat[j*X_DIM+i];
 	}
   }
   d_W = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_size, W, &err);
-  // Read data back to host
- /* err = clEnqueueReadBuffer(commands, d_W, CL_TRUE, 0, W_size, W, 0, NULL, NULL);
-  printf("Weight vector\n");
-  for(i=0; i < X_DIM; i++){
-   	printf("%f ", W[i]);
-  }
-  printf("\n");
-
-  checkError(err, "Copying Weight matrix back to host!");
-  d_W = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, W_size, W, &err);*/
-
-  // Set kernel arguments for second kernel
+   // Set kernel arguments for second kernel
   err = clSetKernelArg(classify, 0, sizeof(X_size), &d_X);
   checkError(err, "Setting kernel arg 0 --- d_X from classify");
   err = clSetKernelArg(classify, 1, sizeof(Y_size), &d_Y);
@@ -315,7 +285,6 @@ while(not_classified_bool && iters <= max_iters){
   checkError(err, "Setting kernel arg 6 --- x_dim from classify");
   err = clSetKernelArg(classify, 7, sizeof(cl_int), &x_length);
   checkError(err, "Setting kernel arg 7 --- x_length from classify");
-  //printf("Launching classify kernel\n");
 
   // Launch second kernel
   err = clEnqueueNDRangeKernel(commands, classify, 2, NULL, (size_t *) &global, (size_t *) &local, 0, NULL, NULL);
@@ -327,48 +296,46 @@ while(not_classified_bool && iters <= max_iters){
   checkError(err, "Copying not_classified back to host!");
   err = clEnqueueReadBuffer(commands, d_sum_missed, CL_TRUE, 0, sum_missed_size, sum_missed, 0, NULL, NULL);
   checkError(err, "Copying sum_missed back to host!");
-  /*err = clEnqueueReadBuffer(commands, d_misclassified, CL_TRUE, 0, Y_size, misclassified, 0, NULL, NULL);
-  checkError(err, "Copying misclassified back to host!");
-  d_misclassified = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, Y_size, misclassified, &err);*/
-	
+  
   // Accumulate not_classified for all the work items to see if all data has been classified
   for(i=0;i<x_length;i++){
 		not_classified_bool += not_classified[i];
 	}
 
-	printf("Not classified: %d \n", not_classified_bool);
 }
 // End timing
 tock();
 uint64_t exec_time;
 exec_time = get_execution_time();
 
-exec_times[index][0] = current_eta;
-exec_times[index][1] = (float) (exec_time);
 // Check how many are still misclassified (if iters reached max iters before all were classified)
 for(i=0;i<x_length;i++){
 	sum_missed_acc += sum_missed[i];
 }
 // Print results
-//printf("Execution Time = %f ns", (double) exec_time);
 if(sum_missed_acc == 0){
 	printf("Perfectly separated data with %d iters\n", iters);
+}
+else if(sum_missed_acc < 10){
+	printf("Finieshed with %d misclassified and %d iters\n", sum_missed_acc, iters);
 }
 else{
 	printf("Finished MAX_ITERS and still %d misclassified\n", sum_missed_acc);
 }
-sum_missed_iters[index][0] = sum_missed_acc;
-sum_missed_iters[index][1] = iters;
-printf("current_eta: %f	start_eta: %f index: %d delta: %f\n", current_eta, start_eta, index, delta);
-	current_eta+= delta;
-	index++;
-// end of big for loop
+printf("execution time: %f \n", (double) exec_time);
+int wrong_classified = 0;
+float verify =0;
+for(i = 0; i < x_length; i++){
+	verify = 0;
+	for(j=0; j < x_dim; j++){
+		verify += X[i*x_dim + j] * W[j];
+	}
+	verify = verify * Y[i];
+	if(verify < 0){
+		wrong_classified++;
+	}
 }
-
-printf("Eta:		Exec time (ns): 	Sum Missed: 	Iters: \n");
-for(k =0; k < 19; k++){
-	printf("%f\t\t%f\t%d\t%d\n", exec_times[k][0], exec_times[k][1], sum_missed_iters[k][0], sum_missed_iters[k][1]);
-}
+printf("The verification code indicates that %d were misclassified \n", wrong_classified);
 
 // Free memory
   free(calculate_weights);

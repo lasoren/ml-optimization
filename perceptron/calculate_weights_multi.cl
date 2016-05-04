@@ -3,7 +3,7 @@ __kernel void calculate_weights(__global float* X, __global char* Y, __global fl
 	int worker_id = get_global_id(0);
 	int local_id = get_local_id(0);
   	int group_id = get_group_id(0);
-	__local float block_weights[500][6];
+	__local float block_weights[300][6];
 	int i,j;
 	if(misclassified[worker_id] == 1){
 		for(j=0;j<x_dim; j++){
@@ -18,10 +18,10 @@ __kernel void calculate_weights(__global float* X, __global char* Y, __global fl
 
 	barrier(CLK_LOCAL_MEM_FENCE);
 	float sum;
-	if(local_id==399){
+	if(local_id==1){
 		for(j=0;j<x_dim;j++){
 			sum = 0;
-			for(i=0;i<500;i++){
+			for(i=0;i<300;i++){
 				sum = sum + block_weights[i][j];
 			}
 			W[group_id*x_dim+j]= sum;
