@@ -55,7 +55,7 @@ void perform_knn_pt(int k,
          int labeled_length,
          data_t* x_pred) {
     //initialization
-    int NUM_THREADS = 4;
+    int NUM_THREADS = 12;
     pthread_t threads[NUM_THREADS];
     struct thread_data thread_data_array[NUM_THREADS];
     int rc;
