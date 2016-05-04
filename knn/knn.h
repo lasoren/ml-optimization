@@ -48,5 +48,4 @@ int mode_labels(const vector< pair<int, float> >& labels);
 // Used for sorting pairs of integer and float values.
 bool compare_labels(const pair<int, float>&i, const pair<int, float>&j);
 
-struct timespec diff(struct timespec start, struct timespec end);
 

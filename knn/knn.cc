@@ -2,7 +2,6 @@
 
 #include <time.h>
 #include <math.h>
-#include <unordered_map>
 #include <map>
 #include <utility>
 #include <functional>
@@ -22,9 +21,11 @@ void perform_knn(const int k,
     // Loop through data points and classify each based on nearest labeled
     // neighbors.
     for (int i = 0; i < x_length; i++) {
+#if DEBUG
         if (i%100 == 0) {
             cout << "Done classifying: " << i << endl;
         }
+#endif
         knn(k, x, i, labeled, labels, dim, labeled_length, x_pred);
     }
 }
@@ -138,14 +139,3 @@ bool compare_labels(const pair<int, float>&i, const pair<int, float>&j) {
     return i.second < j.second;
 }
 
-struct timespec diff(struct timespec start, struct timespec end){
-  struct timespec temp;
-  if ((end.tv_nsec-start.tv_nsec)<0) {
-    temp.tv_sec = end.tv_sec-start.tv_sec-1;
-    temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
-  } else {
-    temp.tv_sec = end.tv_sec-start.tv_sec;
-    temp.tv_nsec = end.tv_nsec-start.tv_nsec;
-  }
-  return temp;
-}

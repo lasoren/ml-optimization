@@ -29,17 +29,21 @@ void* knn_helper(void* threadarg){
     int x_length_low = (taskid * x_length)/NUM_THREADS;
     int x_length_high = x_length_low + (x_length/NUM_THREADS); 
  
-    printf("Hi! I am thread %d computing elements %d to %d\n",taskid,x_length_low,x_length_high);
+#if DEBUG
+    printf("Hi! I am thread %d computing elements %d to %d\n",
+            taskid,x_length_low,x_length_high);
+#endif
 
     // Loop through data points and classify each based on nearest labeled
     // neighbors.
     for (int i = x_length_low; i < x_length_high; i++) {
+#if DEBUG
         if (i%100 == 0) {
             cout << "Done classifying: " << i << endl;
         }
+#endif
         knn(k, x, i, labeled, labels, dim, labeled_length, x_pred);
     }
-
 }
 
 void perform_knn_pt(int k,
@@ -51,7 +55,7 @@ void perform_knn_pt(int k,
          int labeled_length,
          data_t* x_pred) {
     //initialization
-    int NUM_THREADS = 4;
+    int NUM_THREADS = 10;
     pthread_t threads[NUM_THREADS];
     struct thread_data thread_data_array[NUM_THREADS];
     int rc;

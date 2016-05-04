@@ -7,15 +7,15 @@
 #include <pthread.h>
 #include "utils.h"
 
-#define MAX_ITERS 1000000
+#define MAX_ITERS 10000
 #define TEST_CASE 1
 #define GIG 1000000000
 #define CPG 1.4           // Cycles per GHz -- Adjust to your computer
-#define global_X_dim 6
+#define global_X_dim 23
 #define DEBUG 0
 
 double global_w[global_X_dim];
-char misclassified[10000];
+char misclassified[25000];
 int global_iters = 0;
 int x_length;
 int global_sum_missed = 0;
@@ -52,6 +52,7 @@ void* perceptron_helper(void* threadarg){
     int X_length = my_data->X_length;
     int X_dim = my_data->X_dim;
     int NUM_THREADS = my_data->NUM_THREADS;
+	int start_index = (X_dim + NUM_THREADS - 1)*taskid/NUM_THREADS;
     int X_length_low = (taskid * X_length)/NUM_THREADS;
     int X_length_high = X_length_low + (X_length/NUM_THREADS); 
 
@@ -98,8 +99,11 @@ void* perceptron_helper(void* threadarg){
                 w += eta*X[i*(X_dim) + taskid]*y[i];
             }
         }
+
         // each thread updates global weight vector.
-        global_w[taskid] += w;
+		global_w[start_index] += w;
+        global_w[start_index+1] += w;
+		if(taskid != NUM_THREADS -1) global_w[taskid+2] += w;
         
         // global w updated by all threads. Ready to compute misclassified data.
         pthread_barrier_wait(&iterationBarrier);
@@ -194,40 +198,40 @@ int main(int argc, const char** argv){
     //initialization
     struct timespec diff(struct timespec start, struct timespec end);
     struct timespec time1, time2, difference;
-    int X_length = 10000;
-    int X_dim = 6;
+    int X_length = 25000;
+    int X_dim = 23;
     int test_case = TEST_CASE;
-    data_t X[X_length*X_dim];
+    data_t* X = (data_t*) malloc(X_length*X_dim*sizeof(data_t));
     char y[X_length];
     long int i, j, k;
     long int time_sec, time_ns;
-    int NUM_THREADS = 6;
-	float eta;
+    int NUM_THREADS = 23;
+    float eta;
 
     memset(global_w, 0, (X_dim)*sizeof(double));
     printf("\n Hello World -- Perceptron multithreaded\n");
     
     //parse the input file
     int line_counter = 0;
-    FILE* stream = fopen("data.csv", "r");
-    char line[1024];
-    while (fgets(line, 1024, stream))
+    FILE* stream = fopen("../datasets/percept-credit-card-clients.csv", "r");
+    char line[8192];
+    while (fgets(line, 8192, stream))
     {
         char* tmp = strdup(line);
         int idx = line_counter*X_dim;
-        X[idx] = 1.0;
-        X[idx + 1] = strtod(getfield(tmp, 1), NULL);
+        // Get the 23 x dimensions.
+        get_fields(tmp, X+idx, X_dim);
+        // Get the 1 Y dimension from the dataset.
         tmp = strdup(line);
-        X[idx + 2] = strtod(getfield(tmp, 2), NULL);
-        X[idx + 3] = X[idx + 1]*X[idx + 2]; // xy
-        X[idx + 4] = X[idx + 1]*X[idx + 1]; // x^2 
-        X[idx + 5] = X[idx + 2]*X[idx + 2]; // y^2
-        // NOTE strtok clobbers tmp
+        y[line_counter] = (char) strtod(getfield(tmp, 24), NULL);
         free(tmp);
         line_counter++;
+        if (line_counter == X_length) {
+            break;
+        }
     }
 
-    assign_labels(X, X_length, X_dim, test_case, y);
+//    assign_labels(X, X_length, X_dim, test_case, y);
 
     //display values
     for (i = 0; i < X_length; i++) {
@@ -264,23 +268,11 @@ int main(int argc, const char** argv){
         return 1;
     }
     //time the multithreaded perceptron function
-    i=0;	
-    printf("size, running time, num iters\n");
-    for (x_length = 600; x_length <= X_length; x_length += 600) {
-        for(i = 0; i < 5; i++){
-            clock_gettime(CLOCK_REALTIME, &time1);
-            train_perceptron_pt(X, y, 1.0, x_length, X_dim, NUM_THREADS);
-            clock_gettime(CLOCK_REALTIME, &time2);
-            difference = diff(time1,time2);
-            printf("%d, %f, %d\n",
-                    x_length,
-                    (double) (GIG * difference.tv_sec + difference.tv_nsec),
-                    global_iters);
-            memset(global_w, 0, (X_dim)*sizeof(double));
-            global_iters = 0;
-            global_not_classified = 1;
-        }
-    }
+    clock_gettime(CLOCK_REALTIME, &time1);
+    train_perceptron_pt(X, y, 1.0, x_length, X_dim, NUM_THREADS);
+    clock_gettime(CLOCK_REALTIME, &time2);
+    difference = diff(time1,time2);
+    printf("%d, %f, %d\n", x_length, (double) (GIG * difference.tv_sec + difference.tv_nsec),10000);
 
     pthread_mutex_destroy(&weightMutex);
     pthread_mutex_destroy(&itersMutex);
