@@ -7,15 +7,15 @@
 #include <pthread.h>
 #include "utils.h"
 
-#define MAX_ITERS 1000000
+#define MAX_ITERS 10000
 #define TEST_CASE 1
 #define GIG 1000000000
 #define CPG 1.4           // Cycles per GHz -- Adjust to your computer
-#define global_X_dim 6
+#define global_X_dim 23
 #define DEBUG 0
 
 double global_w[global_X_dim];
-char misclassified[10000];
+char misclassified[25000];
 int global_iters = 0;
 int x_length;
 int global_sum_missed = 0;
@@ -205,8 +205,8 @@ int main(int argc, const char** argv){
     char y[X_length];
     long int i, j, k;
     long int time_sec, time_ns;
-    int NUM_THREADS = 8;
-	float eta;
+    int NUM_THREADS = 23;
+    float eta;
 
     memset(global_w, 0, (X_dim)*sizeof(double));
     printf("\n Hello World -- Perceptron multithreaded\n");
@@ -268,23 +268,11 @@ int main(int argc, const char** argv){
         return 1;
     }
     //time the multithreaded perceptron function
-    i=0;	
-    printf("size, running time, num iters\n");
-    for (x_length = 600; x_length <= X_length; x_length += 600) {
-        for(i = 0; i < 5; i++){
-            clock_gettime(CLOCK_REALTIME, &time1);
-            train_perceptron_pt(X, y, 1.0, x_length, X_dim, NUM_THREADS);
-            clock_gettime(CLOCK_REALTIME, &time2);
-            difference = diff(time1,time2);
-            printf("%d, %f, %d\n",
-                    x_length,
-                    (double) (GIG * difference.tv_sec + difference.tv_nsec),
-                    global_iters);
-            memset(global_w, 0, (X_dim)*sizeof(double));
-            global_iters = 0;
-            global_not_classified = 1;
-        }
-    }
+    clock_gettime(CLOCK_REALTIME, &time1);
+    train_perceptron_pt(X, y, 1.0, x_length, X_dim, NUM_THREADS);
+    clock_gettime(CLOCK_REALTIME, &time2);
+    difference = diff(time1,time2);
+    printf("%d, %f, %d\n", x_length, (double) (GIG * difference.tv_sec + difference.tv_nsec),10000);
 
     pthread_mutex_destroy(&weightMutex);
     pthread_mutex_destroy(&itersMutex);

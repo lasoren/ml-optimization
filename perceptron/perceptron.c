@@ -1,4 +1,4 @@
-// gcc -o perceptron.o perceptron.c utils.c
+// gcc -o perceptron.o perceptron.c utils.c -lrt -lm
 
 #include <stdio.h>
 #include <string.h>
@@ -7,7 +7,7 @@
 #include "utils.h"
 
 #define GIG 1000000000
-#define MAX_ITERS 1000
+#define MAX_ITERS 10000
 #define TEST_CASE 1
 #define DEBUG 1
 #define TIMING 0
@@ -108,22 +108,6 @@ int main(int argc, const char** argv){
     printf("%d, %f, %d\n", x_test_length, (double) (GIG * difference.tv_sec + difference.tv_nsec),iterations);
     printf("Number of iterations: %d\n", iterations); 
 
-#if TIMING
-    i=0;
-    printf("size, running time, num iters\n");
-    for (x_length = 600; x_length <= X_length; x_length += 600) {
-        for(i = 0; i < 5; i++){
-            clock_gettime(CLOCK_REALTIME, &time1);
-            int iterations = train_perceptron(X, y, 0.1, x_length, X_dim);
-            clock_gettime(CLOCK_REALTIME, &time2);
-            difference = diff(time1,time2);
-            printf("%d, %f, %d\n",
-                    x_length,
-                    (double) (GIG * difference.tv_sec + difference.tv_nsec),
-                    iterations);
-        }
-    }
-#endif
     return 0;
 }
 
