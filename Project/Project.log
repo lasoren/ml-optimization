@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 MAY 2016 00:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 MAY 2016 00:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -762,180 +762,194 @@ File: testcase3.jpg Graphic file (type jpg)
  <use testcase3.jpg>
 Package pdftex.def Info: testcase3.jpg used on input line 193.
 (pdftex.def)             Requested size: 345.0pt x 258.13318pt.
- [5] [6 <./testcase1.jpg>] [7 <./testcase2.jpg>] [8 <./testcase3.jpg>]
-Underfull \hbox (badness 10000) in paragraph at lines 211--218
+
+<XY.png, id=24, 104.39pt x 112.42pt>
+File: XY.png Graphic file (type png)
+ <use XY.png>
+Package pdftex.def Info: XY.png used on input line 202.
+(pdftex.def)             Requested size: 103.50105pt x 111.46939pt.
+
+<XYProcessed.png, id=26, 349.305pt x 114.4275pt>
+File: XYProcessed.png Graphic file (type png)
+ <use XYProcessed.png>
+Package pdftex.def Info: XYProcessed.png used on input line 209.
+(pdftex.def)             Requested size: 345.0pt x 113.0234pt.
+ [5]
+[6 <./testcase1.jpg>] [7 <./testcase2.jpg>] [8 <./testcase3.jpg> <./XY.png>]
+[9 <./XYProcessed.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 225--232
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 211--218
+Underfull \hbox (badness 10000) in paragraph at lines 225--232
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 211--218
+Underfull \hbox (badness 10000) in paragraph at lines 225--232
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 211--218
+Underfull \hbox (badness 10000) in paragraph at lines 225--232
 
  []
 
 
-Overfull \hbox (46.95624pt too wide) in paragraph at lines 211--218
+Overfull \hbox (46.95624pt too wide) in paragraph at lines 225--232
 \OT1/cmr/m/n/10 We must set bar-ri-ers when read-ing or writ-ing to global[]not
 []classified and global[]sum[]missed
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 211--218
+Underfull \hbox (badness 10000) in paragraph at lines 225--232
 
  []
 
-[9
+[10
 
 ]
-Overfull \hbox (1.49698pt too wide) in paragraph at lines 228--228
+Overfull \hbox (1.49698pt too wide) in paragraph at lines 242--242
 [] \OT1/cmtt/m/n/10 95         // each thread updates one index of the weight v
 ector.[] 
  []
 
 
-Overfull \hbox (17.24684pt too wide) in paragraph at lines 251--251
+Overfull \hbox (17.24684pt too wide) in paragraph at lines 265--265
 []\OT1/cmtt/m/n/10 114                 score[local_idx] += X[i*(X_dim) + j]*glo
 bal_w[j];[] 
  []
 
 
-Overfull \hbox (32.9967pt too wide) in paragraph at lines 251--251
+Overfull \hbox (32.9967pt too wide) in paragraph at lines 265--265
 []\OT1/cmtt/m/n/10 117             misclassified[i] = score[local_idx]*y[i] <= 
 0.0 ? 1 : 0;[] 
  []
 
 
-Overfull \hbox (53.99652pt too wide) in paragraph at lines 251--251
+Overfull \hbox (53.99652pt too wide) in paragraph at lines 265--265
 []\OT1/cmtt/m/n/10 118             // Set not_classified to 1 if any data point
  is misclassfied[] 
  []
 
-[10]
-Underfull \hbox (badness 10000) in paragraph at lines 256--263
+[11]
+Underfull \hbox (badness 10000) in paragraph at lines 270--277
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 256--263
+Underfull \hbox (badness 10000) in paragraph at lines 270--277
 
  []
 
 
-Overfull \hbox (10.37466pt too wide) in paragraph at lines 256--263
+Overfull \hbox (10.37466pt too wide) in paragraph at lines 270--277
 \OT1/cmr/m/n/10 in be-tween ker-nel calls. In OpenCL, we used bar-rier(CLK[]LOC
 AL[]MEM[]FENCE)
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 256--263
+Underfull \hbox (badness 10000) in paragraph at lines 270--277
 
  []
 
-[11
+[12
 
-] <PerceptronTestCase1.png, id=49, 445.665pt x 276.0714pt>
+] <PerceptronTestCase1.png, id=57, 445.665pt x 276.0714pt>
 File: PerceptronTestCase1.png Graphic file (type png)
 
 <use PerceptronTestCase1.png>
-Package pdftex.def Info: PerceptronTestCase1.png used on input line 270.
+Package pdftex.def Info: PerceptronTestCase1.png used on input line 284.
 (pdftex.def)             Requested size: 345.0pt x 213.713pt.
- [12
+ [13
 
  <./PerceptronTestCase1.png>]
-<PerceptronTestCase2.png, id=55, 451.9284pt x 278.9622pt>
+<PerceptronTestCase2.png, id=63, 451.9284pt x 278.9622pt>
 File: PerceptronTestCase2.png Graphic file (type png)
 
 <use PerceptronTestCase2.png>
-Package pdftex.def Info: PerceptronTestCase2.png used on input line 277.
+Package pdftex.def Info: PerceptronTestCase2.png used on input line 291.
 (pdftex.def)             Requested size: 345.0pt x 212.96695pt.
- [13
+ [14
 
  <./PerceptronTestCase2.png>]
-<PerceptronTestCase3.png, id=61, 576.2328pt x 298.716pt>
+<PerceptronTestCase3.png, id=68, 576.2328pt x 298.716pt>
 File: PerceptronTestCase3.png Graphic file (type png)
 
 <use PerceptronTestCase3.png>
-Package pdftex.def Info: PerceptronTestCase3.png used on input line 286.
+Package pdftex.def Info: PerceptronTestCase3.png used on input line 300.
 (pdftex.def)             Requested size: 345.0pt x 178.8481pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 291--304
+Underfull \hbox (badness 10000) in paragraph at lines 305--318
 
  []
 
 
-Overfull \hbox (48.83301pt too wide) in paragraph at lines 291--304
+Overfull \hbox (48.83301pt too wide) in paragraph at lines 305--318
 [] 
- []
-
-[14
-
- <./PerceptronTestCase3.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 306--312
-
- []
-
-
-Overfull \hbox (43.49661pt too wide) in paragraph at lines 330--330
-[]    \OT1/cmtt/m/n/10 // Loop through data points and classify each based on n
-earest labeled[] 
- []
-
-
-Overfull \hbox (6.74693pt too wide) in paragraph at lines 330--330
-[]        \OT1/cmtt/m/n/10 knn(k, x, i, labeled, labels, dim, labeled_length, x
-_pred);[] 
  []
 
 [15
 
-]
-Overfull \hbox (43.49661pt too wide) in paragraph at lines 360--360
+ <./PerceptronTestCase3.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 320--326
+
+ []
+
+
+Overfull \hbox (43.49661pt too wide) in paragraph at lines 344--344
 []    \OT1/cmtt/m/n/10 // Loop through data points and classify each based on n
 earest labeled[] 
  []
 
 
-Overfull \hbox (6.74693pt too wide) in paragraph at lines 360--360
+Overfull \hbox (6.74693pt too wide) in paragraph at lines 344--344
 []        \OT1/cmtt/m/n/10 knn(k, x, i, labeled, labels, dim, labeled_length, x
 _pred);[] 
  []
 
-[16] <varyingkKNN.png, id=72, 794.97pt x 614.295pt>
+[16
+
+]
+Overfull \hbox (43.49661pt too wide) in paragraph at lines 374--374
+[]    \OT1/cmtt/m/n/10 // Loop through data points and classify each based on n
+earest labeled[] 
+ []
+
+
+Overfull \hbox (6.74693pt too wide) in paragraph at lines 374--374
+[]        \OT1/cmtt/m/n/10 knn(k, x, i, labeled, labels, dim, labeled_length, x
+_pred);[] 
+ []
+
+[17] <varyingkKNN.png, id=79, 794.97pt x 614.295pt>
 File: varyingkKNN.png Graphic file (type png)
  <use varyingkKNN.png>
-Package pdftex.def Info: varyingkKNN.png used on input line 365.
+Package pdftex.def Info: varyingkKNN.png used on input line 379.
 (pdftex.def)             Requested size: 345.0pt x 266.59752pt.
-
-[17
-
- <./varyingkKNN.png>] <runningtimeKNN.png, id=77, 794.97pt x 614.295pt>
-File: runningtimeKNN.png Graphic file (type png)
-
-<use runningtimeKNN.png>
-Package pdftex.def Info: runningtimeKNN.png used on input line 374.
-(pdftex.def)             Requested size: 345.0pt x 266.59752pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 379--380
-
- []
 
 [18
 
- <./runningtimeKNN.png>] [19] (./Project.aux) ) 
+ <./varyingkKNN.png>] <runningtimeKNN.png, id=84, 794.97pt x 614.295pt>
+File: runningtimeKNN.png Graphic file (type png)
+
+<use runningtimeKNN.png>
+Package pdftex.def Info: runningtimeKNN.png used on input line 388.
+(pdftex.def)             Requested size: 345.0pt x 266.59752pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 393--394
+
+ []
+
+[19
+
+ <./runningtimeKNN.png>] [20] (./Project.aux) ) 
 Here is how much of TeX's memory you used:
- 12967 strings out of 493089
- 276070 string characters out of 6134842
+ 12977 strings out of 493089
+ 276213 string characters out of 6134842
  305738 words of memory out of 5000000
- 16348 multiletter control sequences out of 15000+600000
+ 16356 multiletter control sequences out of 15000+600000
  11537 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  42i,8n,41p,10435b,523s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -948,10 +962,10 @@ onts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2015/texmf-dist/fonts
 /type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015/texmf-dist/fonts/
 type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on Project.pdf (19 pages, 771683 bytes).
+Output written on Project.pdf (20 pages, 797979 bytes).
 PDF statistics:
- 113 PDF objects out of 1000 (max. 8388607)
- 69 compressed objects within 1 object stream
+ 120 PDF objects out of 1000 (max. 8388607)
+ 71 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 46 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 56 words of extra memory for PDF output out of 10000 (max. 10000000)
 
