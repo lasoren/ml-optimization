@@ -374,6 +374,7 @@ void* knn_helper(void* threadarg){
 \end{verbatim}
 Here we see the naive but effective parallel implementation of KNN. Because each classification is independent, it is straightforward to simply divide the data up into equal parts and process the unlabeled data in parallel with as many threads as are available. For the dataset we used of 25000 labeled points, dividing up the data in any other way would not provide significant cache benefits unfortunately. If instead we divided up the labeled data and synchronized the threads at the end of each classification of a single data point, each thread would still need to operate on 2500 data points of 23 doubles, a size that exceeds the available cache per thread of our CPU.
 \clearpage
+\section{KNN - Experiments and Results}
 \begin{figure}[!htbp]
 \begin{center}
 \includegraphics[width=1.0\textwidth]{varyingkKNN} % Include the image placeholder.png
@@ -413,6 +414,6 @@ Perceptron actually performs far better on this dataset. We have implemented cod
 
 Using this approach with 1000 iterations of no improvement as our threshold, we were able to classify 19434 of the 25000 training data points. Then, during testing we saw a classification rate of 78.8\% (3942 out of 5000). To find this weight vector took 1814 iterations total, so the best weight vector occurred at iteration 814 (followed by 1000 iterations of no improvement). Using our serial implementation of the perceptron algorithm, compiled with -O3 optimizations, we see a running of time of 2.1 seconds, significantly better than the running times of serial KNN and with a slightly better classification rate. This real world dataset shows that picking and tuning the right machine learning algorithm is going to be the most important thing to do to improve performance.
 
-\section{Introduction}
+\section{Conclusion}
 
 \end{document}

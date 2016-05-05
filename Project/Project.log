@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 MAY 2016 00:31
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 MAY 2016 00:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -926,7 +926,7 @@ _pred);[]
 [17] <varyingkKNN.png, id=79, 794.97pt x 614.295pt>
 File: varyingkKNN.png Graphic file (type png)
  <use varyingkKNN.png>
-Package pdftex.def Info: varyingkKNN.png used on input line 379.
+Package pdftex.def Info: varyingkKNN.png used on input line 380.
 (pdftex.def)             Requested size: 345.0pt x 266.59752pt.
 
 [18
@@ -935,10 +935,10 @@ Package pdftex.def Info: varyingkKNN.png used on input line 379.
 File: runningtimeKNN.png Graphic file (type png)
 
 <use runningtimeKNN.png>
-Package pdftex.def Info: runningtimeKNN.png used on input line 388.
+Package pdftex.def Info: runningtimeKNN.png used on input line 389.
 (pdftex.def)             Requested size: 345.0pt x 266.59752pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 393--394
+Underfull \hbox (badness 10000) in paragraph at lines 394--395
 
  []
 
@@ -952,7 +952,7 @@ Here is how much of TeX's memory you used:
  16356 multiletter control sequences out of 15000+600000
  11537 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,8n,41p,10435b,523s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,8n,41p,10435b,525s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2015/texmf-d
 ist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2015/texmf-di
 st/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dis
@@ -962,7 +962,7 @@ onts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2015/texmf-dist/fonts
 /type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015/texmf-dist/fonts/
 type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on Project.pdf (20 pages, 797979 bytes).
+Output written on Project.pdf (20 pages, 798198 bytes).
 PDF statistics:
  120 PDF objects out of 1000 (max. 8388607)
  71 compressed objects within 1 object stream
