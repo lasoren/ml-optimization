@@ -1,4 +1,4 @@
-// g++ -o knn.o credit_main_pt.cc knn_pt.cc knn.cc utils.cc
+// g++ -o knn.o credit_main_pt.cc knn_pt.cc knn.cc utils.cc -lrt -lm
 
 #include <stdlib.h>
 #include <string.h>
